@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "599409999507",
+    "project_id": "tourly-33e16",
+    "storage_bucket": "tourly-33e16.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599409999507:android:70375582fa9b7587075766",
+        "android_client_info": {
+          "package_name": "com.example.tourly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "599409999507-2vl4pe0tpor68k5ld11rsd25koavh361.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tourly",
+            "certificate_hash": "96613f4d76a7cc76f47c68953f488f9dd06ed80b"
+          }
+        },
+        {
+          "client_id": "599409999507-f4mobvihd3m5t202a0tqbe8amunl8j7b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcmc5hRR-o9MKggX1rx7mJOjQDX3tf02U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "599409999507-4q4rm03hmn6bv9tudrl74krrbh1mjquv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "599409999507-aagnmudor6jm2i47o6go723717s5sovh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tourly"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
