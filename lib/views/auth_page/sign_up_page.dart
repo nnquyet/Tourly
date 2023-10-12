@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
@@ -8,12 +12,13 @@ import 'package:tourly/common/widgets/text_field_container.dart';
 import 'package:tourly/controllers/auth_controller/login_controller.dart';
 import 'package:tourly/controllers/auth_controller/sign_up_controller.dart';
 import 'package:tourly/views/auth_page/login_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key});
 
-  final SignupController signup = Get.find();
-  final LoginController login = Get.find();
+  final signup = Get.put(SignupController());
+  final login = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +27,9 @@ class SignupScreen extends StatelessWidget {
       () => Scaffold(
         backgroundColor: AppConst.kPrimaryLightColor,
         appBar: AppBar(
-          title: const Text('Đăng ký', style: TextStyle(color: Colors.black54)),
+          title: const Text('Đăng ký', style: TextStyle(color: Colors.black)),
           centerTitle: true,
-          iconTheme: const IconThemeData(color: Colors.black54),
+          iconTheme: const IconThemeData(color: Colors.black),
           backgroundColor: AppConst.kPrimaryLightColor,
           elevation: 0,
         ),
@@ -38,10 +43,7 @@ class SignupScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Vui lòng nhập địa chỉ email của bạn và mật khẩu để đăng nhập',
-                        style: TextStyle(fontSize: AppConst.kFontSize)),
-                    SizedBox(height: size.height * 0.03),
-                    TextFieldContainer(
+                    TextFieldContainerAuth(
                       title: 'Họ và tên',
                       hintText: 'Nguyễn Văn A',
                       controller: signup.fullNameController,
@@ -61,7 +63,7 @@ class SignupScreen extends StatelessWidget {
                       },
                     ),
                     SizedBox(height: size.height * 0.03),
-                    TextFieldContainer(
+                    TextFieldContainerAuth(
                       title: 'Email',
                       hintText: 'example@gmail.com',
                       controller: signup.usernameController,
@@ -80,16 +82,16 @@ class SignupScreen extends StatelessWidget {
                       },
                     ),
                     SizedBox(height: size.height * 0.03),
-                    TextFieldContainer(
+                    TextFieldContainerAuth(
                       title: 'Mật khẩu',
                       hintText: 'Mật khẩu',
                       controller: signup.passwordController,
                       onChanged: (value) {},
-                      icon: signup.passwordVisible.value ? Icons.visibility : Icons.visibility_off,
+                      icon: signup.isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
                       iconColor: AppConst.kButtonColor,
-                      obscureText: !signup.passwordVisible.value,
+                      obscureText: !signup.isPasswordVisible.value,
                       onClickIcon: () {
-                        signup.passwordVisible.value = !signup.passwordVisible.value;
+                        signup.isPasswordVisible.value = !signup.isPasswordVisible.value;
                       },
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -114,16 +116,16 @@ class SignupScreen extends StatelessWidget {
                       },
                     ),
                     SizedBox(height: size.height * 0.03),
-                    TextFieldContainer(
+                    TextFieldContainerAuth(
                       title: 'Xác nhận mật khẩu',
                       hintText: 'Xác nhận mật khẩu',
                       controller: signup.confirmPassController,
                       onChanged: (value) {},
-                      icon: signup.passwordConfirmVisible.value ? Icons.visibility : Icons.visibility_off,
+                      icon: signup.isPasswordConfirmVisible.value ? Icons.visibility : Icons.visibility_off,
                       iconColor: AppConst.kButtonColor,
-                      obscureText: !signup.passwordConfirmVisible.value,
+                      obscureText: !signup.isPasswordConfirmVisible.value,
                       onClickIcon: () {
-                        signup.passwordConfirmVisible.value = !signup.passwordConfirmVisible.value;
+                        signup.isPasswordConfirmVisible.value = !signup.isPasswordConfirmVisible.value;
                       },
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -162,7 +164,7 @@ class SignupScreen extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 15),
                               child: RichText(
-                                text: const TextSpan(
+                                text: TextSpan(
                                   style: TextStyle(fontSize: 16, color: Colors.black, height: 1.5),
                                   children: [
                                     TextSpan(text: 'Tôi đồng ý với '),
@@ -171,10 +173,14 @@ class SignupScreen extends StatelessWidget {
                                       style: TextStyle(
                                         color: AppConst.kButtonColor,
                                       ),
-                                      // recognizer: TapGestureRecognizer()
-                                      //   ..onTap = () {
-                                      //     // Xử lý khi người dùng bấm vào "Chính sách quyền riêng tư"
-                                      //   },
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () async {
+                                          // Xử lý khi người dùng bấm vào "Chính sách quyền riêng tư"
+                                          if (!await launchUrl(
+                                              Uri.parse('https://sites.google.com/view/glean-bhsoft'))) {
+                                            throw Exception('Could not launch url}');
+                                          }
+                                        },
                                     ),
                                     TextSpan(text: ' và '),
                                     TextSpan(
@@ -182,10 +188,14 @@ class SignupScreen extends StatelessWidget {
                                       style: TextStyle(
                                         color: AppConst.kButtonColor,
                                       ),
-                                      // recognizer: TapGestureRecognizer()
-                                      //   ..onTap = () {
-                                      //     // Xử lý khi người dùng bấm vào "Điều khoản sử dụng"
-                                      //   },
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () async {
+                                          // Xử lý khi người dùng bấm vào "Chính sách quyền riêng tư"
+                                          if (!await launchUrl(
+                                              Uri.parse('https://sites.google.com/view/glean-bhsoft'))) {
+                                            throw Exception('Could not launch url}');
+                                          }
+                                        },
                                     ),
                                   ],
                                 ),
@@ -199,27 +209,33 @@ class SignupScreen extends StatelessWidget {
                     RoundedButton(
                         text: 'Đăng ký',
                         press: () async {
-                          if (signup.isAgreedToPrivacyPolicy.value) {
-                            signup.createUserWithEmailAndPassword(
-                                signup.usernameController.text, signup.passwordController.text, context);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(Icons.error_outline, color: Colors.white),
-                                    SizedBox(width: 8.0),
-                                    Text(
-                                      'Vui lòng đồng ý với chính sách và điều khoản.',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ],
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          if (signup.formKeySignUp.currentState!.validate()) {
+                            if (signup.isAgreedToPrivacyPolicy.value) {
+                              Get.dialog(const Center(child: CircularProgressIndicator()));
+
+                              await signup.createUserWithEmailAndPassword(
+                                  signup.usernameController.text, signup.passwordController.text, context);
+                              FirebaseAuth.instance.currentUser?.sendEmailVerification();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Icon(Icons.error_outline, color: Colors.white),
+                                      SizedBox(width: 8.0),
+                                      Text(
+                                        'Vui lòng đồng ý với chính sách và điều khoản.',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 3),
                                 ),
-                                backgroundColor: Colors.red,
-                                duration: Duration(seconds: 3),
-                              ),
-                            );
+                              );
+                            }
                           }
                         }),
                     SizedBox(height: size.height * 0.03),
@@ -229,11 +245,10 @@ class SignupScreen extends StatelessWidget {
                       children: [
                         SocialIcon(iconSrc: 'assets/images/facebook.png', press: () {}),
                         SocialIcon(
-                          iconSrc: 'assets/images/google.png',
-                          press: () {
-                            login.signInWithGoogle(context: context);
-                          },
-                        ),
+                            iconSrc: 'assets/images/google.png',
+                            press: () {
+                              login.signInWithGoogle(context: context);
+                            }),
                         SocialIcon(iconSrc: 'assets/images/github.png', press: () {})
                       ],
                     ),
@@ -241,7 +256,7 @@ class SignupScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Đã có tài khoản ? ", style: TextStyle(color: AppConst.kTextColor)),
+                        const Text("Đã có tài khoản? ", style: TextStyle(color: AppConst.kTextColor)),
                         GestureDetector(
                           onTap: () {
                             Get.off(LoginScreen());
@@ -250,8 +265,6 @@ class SignupScreen extends StatelessWidget {
                             'Đăng nhập',
                             style: TextStyle(
                               color: AppConst.kButtonColor,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
                               decorationThickness: 2,
                             ),
                           ),

@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:tourly/common/app_constants.dart';
-import 'package:tourly/common/widgets/address_card_detail.dart';
-import 'package:tourly/common/widgets/text_field_container.dart';
+import 'package:tourly/views/cards/address_card_detail.dart';
 import 'package:tourly/controllers/home_page_controller/search_page_controller.dart';
-import 'package:tourly/common/widgets/address_card.dart';
+import 'package:tourly/views/cards/address_card.dart';
 import 'package:tourly/views/search_page/search_bar_page.dart';
+
+import '../chat_page/chat_screen.dart';
 
 class SearchPage extends StatelessWidget {
   SearchPage({super.key});
@@ -22,9 +22,9 @@ class SearchPage extends StatelessWidget {
         return SafeArea(
           child: Scaffold(
             appBar: AppBar(
-              toolbarHeight: 102,
+              toolbarHeight: 110,
               backgroundColor: AppConst.kPrimaryLightColor,
-              elevation: 3,
+              elevation: 1,
               automaticallyImplyLeading: false,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,21 +56,13 @@ class SearchPage extends StatelessWidget {
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.circular(25.0),
                         ),
-                        prefixIcon: const Icon(Icons.location_on_outlined, color: AppConst.kPrimaryColor),
-                        suffixIcon: !search.isShowIconClose.value
-                            ? InkWell(
-                                onTap: () {
-                                  Get.to(SearchBarPage());
-                                },
-                                child: const Icon(Icons.search_outlined, color: AppConst.kPrimaryColor),
-                              )
-                            : InkWell(
-                                onTap: () {
-                                  search.searchBarController.value.text = "";
-                                  search.isShowIconClose.value = false;
-                                },
-                                child: const Icon(Icons.close_outlined, color: AppConst.kPrimaryColor),
-                              ),
+                        prefixIcon: const Icon(Icons.location_on_outlined, color: AppConst.kTextColor),
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            Get.to(SearchBarPage());
+                          },
+                          child: const Icon(Icons.search_outlined, color: AppConst.kTextColor),
+                        ),
                         hintText: "Nhập địa điểm, hoạt động, sở thích...",
                         hintStyle: const TextStyle(color: AppConst.kSubTextColor),
                         contentPadding: const EdgeInsets.all(15),
@@ -111,13 +103,12 @@ class SearchPage extends StatelessWidget {
                                 const PopupMenuItem(value: 'Công viên', child: Text('Công viên')),
                                 const PopupMenuItem(value: 'Sở thú', child: Text('Sở thú')),
                                 const PopupMenuItem(value: 'Khu vui chơi', child: Text('Khu vui chơi')),
-                                const PopupMenuItem(value: 'Khu dã ngoại', child: Text('Khu dã ngoại')),
+                                const PopupMenuItem(value: 'Dã ngoại', child: Text('Dã ngoại')),
                                 const PopupMenuItem(value: 'Khu nghỉ dưỡng', child: Text('Khu nghỉ dưỡng')),
                                 const PopupMenuItem(value: 'Âm nhạc', child: Text('Âm nhạc')),
                                 const PopupMenuItem(value: 'Ẩm thực', child: Text('Ẩm thực')),
                                 const PopupMenuItem(value: 'Mua sắm', child: Text('Mua sắm')),
                                 const PopupMenuItem(value: 'Triển lãm', child: Text('Triển lãm')),
-                                const PopupMenuItem(value: 'Nhà hát', child: Text('Nhà hát')),
                               ];
                             },
                             constraints: BoxConstraints(maxWidth: 145),
@@ -134,7 +125,7 @@ class SearchPage extends StatelessWidget {
                               return [
                                 const PopupMenuItem(value: 'Di tích', child: Text('Di tích')),
                                 const PopupMenuItem(value: 'Bảo tàng', child: Text('Bảo tàng')),
-                                const PopupMenuItem(value: 'Đền, chùa', child: Text('Đền, chùa')),
+                                const PopupMenuItem(value: 'Đền chùa', child: Text('Đền chùa')),
                                 const PopupMenuItem(value: 'Nhà thờ', child: Text('Nhà thờ')),
                                 const PopupMenuItem(value: 'Truyền thống', child: Text('Truyền thống')),
                               ];
@@ -152,9 +143,10 @@ class SearchPage extends StatelessWidget {
                             itemBuilder: (BuildContext context) {
                               return [
                                 const PopupMenuItem(value: 'Cảnh đẹp', child: Text('Cảnh đẹp')),
-                                const PopupMenuItem(value: 'Rừng, núi', child: Text('Rừng, núi')),
+                                const PopupMenuItem(value: 'Núi', child: Text('Núi')),
                                 const PopupMenuItem(value: 'Biển', child: Text('Biển')),
-                                const PopupMenuItem(value: 'Hồ, thác', child: Text('Hồ, thác')),
+                                const PopupMenuItem(value: 'Hồ', child: Text('Hồ')),
+                                const PopupMenuItem(value: 'Thác', child: Text('Thác')),
                                 const PopupMenuItem(value: 'Hang động', child: Text('Hang động')),
                                 const PopupMenuItem(value: 'Đồng cỏ', child: Text('Đồng cỏ')),
                               ];
@@ -174,7 +166,6 @@ class SearchPage extends StatelessWidget {
                                 const PopupMenuItem(value: 'Leo núi', child: Text('Leo núi')),
                                 const PopupMenuItem(value: 'Bơi', child: Text('Bơi')),
                                 const PopupMenuItem(value: 'Đi phượt', child: Text('Đi phượt')),
-                                const PopupMenuItem(value: 'Luớt sóng', child: Text('Luớt sóng')),
                                 const PopupMenuItem(value: 'Thăm quan', child: Text('Thăm quan')),
                                 const PopupMenuItem(value: 'Đi bộ', child: Text('Đi bộ')),
                               ];
@@ -198,12 +189,13 @@ class SearchPage extends StatelessWidget {
             body: Stack(
               children: [
                 Container(
-                  padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  padding: EdgeInsets.fromLTRB(search.size.value.width * 0.06, search.size.value.width * 0.06,
+                      search.size.value.width * 0.06, 0),
                   child: ListView.builder(
                     itemCount: search.filterAddressList.length,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
+                        padding: const EdgeInsets.only(bottom: 25.0),
                         child: InkWell(
                             onTap: () {
                               Get.to(() => AddressCardDetail(addressModel: search.filterAddressList[index]));
@@ -211,6 +203,24 @@ class SearchPage extends StatelessWidget {
                             child: AddressCard(search.filterAddressList[index])),
                       );
                     },
+                  ),
+                ),
+                Positioned(
+                  left: search.xPosition.value,
+                  top: search.yPosition.value,
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(() => Chat());
+                    },
+                    onPanUpdate: (details) {
+                      search.xPosition.value += details.delta.dx;
+                      search.yPosition.value += details.delta.dy;
+                    },
+                    child: Image.asset(
+                      'assets/images/bot.png',
+                      width: 80,
+                      height: 80,
+                    ),
                   ),
                 )
               ],

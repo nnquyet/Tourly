@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:tourly/common/app_constants.dart';
-import 'package:tourly/common/widgets/address_card.dart';
-import 'package:tourly/controllers/auth_controller/hadleUser.dart';
+import 'package:tourly/controllers/auth_controller/hadle_user.dart';
 import 'package:tourly/models/address_model.dart';
-import 'package:tourly/views/auth_page/login_page.dart';
 import 'package:tourly/views/search_page/search_bar_page.dart';
 
 class SearchPageController extends GetxController {
   //main controller
+  final size = Get.size.obs;
   late Rx<TextEditingController> searchBarController;
   RxList<AddressModel> addressList = <AddressModel>[].obs;
   RxList<AddressModel> filterAddressList = <AddressModel>[].obs;
@@ -20,6 +17,8 @@ class SearchPageController extends GetxController {
   Rx<bool> isShowIconClose = false.obs;
   Rx<FocusNode> searchFocusNode = FocusNode().obs;
   // Rx<FocusNode> searchBarFocusNode = FocusNode().obs;
+  RxDouble xPosition = 0.0.obs;
+  RxDouble yPosition = 0.0.obs;
 
   //option controller
   RxString selectedAddress = "".obs;
@@ -33,6 +32,9 @@ class SearchPageController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     searchBarController = TextEditingController().obs;
+    xPosition.value = size.value.width * 0.79;
+    yPosition.value = size.value.height * 0.60;
+
     Future.delayed(const Duration(milliseconds: 0), () async {
       // await getDataFromApi();
       await HandleUser().getDataFromFirestore();

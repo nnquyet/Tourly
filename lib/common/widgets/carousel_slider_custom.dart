@@ -1,6 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:tourly/common/widgets/app_image.dart';
 
 import '../app_constants.dart';
 
@@ -35,15 +36,11 @@ class _CarouselSliderCustomState extends State<CarouselSliderCustom> {
           CarouselSlider(
               carouselController: controller,
               items: imagesUrlList.map((imageUrl) {
-                return CachedNetworkImage(
-                  imageUrl: imageUrl.isEmpty ? AppConst.defaultUrlAddress : imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => const Icon(Icons.error_outline),
-                );
+                return AppImage(
+                    imageUrl.isEmpty ? AppConst.defaultUrlAddress : imageUrl, double.infinity, Get.size.width * 0.6);
               }).toList(),
               options: CarouselOptions(
-                height: 300.0,
+                height: Get.size.width * 0.6,
                 autoPlay: true,
                 enlargeCenterPage: true,
                 viewportFraction: 1,

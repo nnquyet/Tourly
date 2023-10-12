@@ -15,7 +15,7 @@ class SocialIcon extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: 10),
           padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
           decoration: BoxDecoration(
-              border: Border.all(width: 1, color: AppConst.kPrimaryColor),
+              border: Border.all(width: 1, color: AppConst.kSubTextColor),
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(30)),
           child: ClipOval(child: Image.asset(iconSrc, width: 25, height: 25))),

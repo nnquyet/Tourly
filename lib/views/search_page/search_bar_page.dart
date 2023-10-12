@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/controllers/resource.dart';
-import 'package:tourly/common/widgets/address_card_detail.dart';
-import 'package:tourly/common/widgets/text_field_container.dart';
+import 'package:tourly/common/widgets/app_image.dart';
+import 'package:tourly/views/cards/address_card_detail.dart';
 import 'package:tourly/controllers/home_page_controller/search_page_controller.dart';
-import 'package:tourly/common/widgets/address_card.dart';
 
 class SearchBarPage extends StatelessWidget {
   SearchBarPage({super.key});
@@ -16,7 +14,6 @@ class SearchBarPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Obx(
       () {
         return Scaffold(
@@ -27,25 +24,23 @@ class SearchBarPage extends StatelessWidget {
             automaticallyImplyLeading: false,
             title: Row(
               children: [
-                Container(
-                  // color: Colors.red,
-                  child: Transform.translate(
-                    offset: Offset(-5, 0),
-                    child: GestureDetector(
-                      onTap: () {
-                        search.searchBarController.value.text = "";
-                        search.searchAddress('');
-                        search.filterAddressList.value = search.addressList;
-                        Get.back();
-                      },
-                      child: Icon(
-                        Icons.arrow_back_ios_new_outlined,
-                        color: Colors.black,
-                      ),
+                Transform.translate(
+                  offset: const Offset(-5, 0),
+                  child: GestureDetector(
+                    onTap: () {
+                      search.searchBarController.value.text = "";
+                      search.searchAddress('');
+                      search.isShowIconClose.value = false;
+                      search.filterAddressList.value = search.addressList;
+                      Get.back();
+                    },
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_outlined,
+                      color: Colors.black,
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Container(
                     height: 50,
@@ -101,7 +96,7 @@ class SearchBarPage extends StatelessWidget {
             ),
           ),
           body: Container(
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: ListView.builder(
               itemCount: search.filterAddressList.length,
               itemBuilder: (context, index) {
@@ -117,30 +112,37 @@ class SearchBarPage extends StatelessWidget {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const SizedBox(
                               height: 60,
-                              width: 60,
-                              child: Center(child: CircularProgressIndicator()),
+                              width: 80,
+                              child: CupertinoActivityIndicator(),
                             );
                           }
                           if (snapshot.hasError) {
                             return const SizedBox(
                               height: 60,
-                              width: 60,
-                              child: Center(child: Text('Error loading image')),
+                              width: 80,
+                              child: CupertinoActivityIndicator(),
                             );
                           }
-
-                          return Image.network(
+                          return AppImage(
                             snapshot.data!,
-                            fit: BoxFit.cover,
-                            height: 60,
-                            width: 60,
+                            80,
+                            60,
+                            circular: Get.size.width * 0.01,
                           );
                         },
                       ),
                       Expanded(
                         child: ListTile(
-                          title: Text(search.filterAddressList[index].name),
-                          subtitle: Text(search.filterAddressList[index].address),
+                          title: Text(
+                            search.filterAddressList[index].name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            search.filterAddressList[index].address,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       )
                     ],

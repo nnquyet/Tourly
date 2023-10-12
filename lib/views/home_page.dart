@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/controllers/home_page_controller/home_page_controller.dart';
-import 'package:tourly/views/account_page.dart';
 
 class HomePage extends StatelessWidget {
   HomePageController homepage = Get.find();
@@ -31,17 +30,17 @@ class HomePage extends StatelessWidget {
           items: [
             BottomNavigationBarItem(
                 icon: Icon(homepage.selectedIndex.value == 0 ? Icons.home : Icons.home_outlined), label: 'Trang chủ'),
+            // BottomNavigationBarItem(
+            //     icon: Icon(homepage.selectedIndex.value == 1 ? Icons.message : Icons.message_outlined),
+            //     label: 'Chatbot'),
             BottomNavigationBarItem(
-                icon: Icon(homepage.selectedIndex.value == 1 ? Icons.message : Icons.message_outlined),
-                label: 'Chatbot'),
-            BottomNavigationBarItem(
-                icon: Icon(homepage.selectedIndex.value == 2 ? Icons.favorite : Icons.favorite_outline_outlined),
+                icon: Icon(homepage.selectedIndex.value == 1 ? Icons.favorite : Icons.favorite_outline_outlined),
                 label: 'Yêu thích'),
             BottomNavigationBarItem(
-                icon: Icon(homepage.selectedIndex.value == 3 ? Icons.contact_support : Icons.contact_support_outlined),
+                icon: Icon(homepage.selectedIndex.value == 2 ? Icons.contact_support : Icons.contact_support_outlined),
                 label: 'Trợ giúp'),
             BottomNavigationBarItem(
-                icon: Icon(homepage.selectedIndex.value == 4 ? Icons.person : Icons.person_2_outlined),
+                icon: Icon(homepage.selectedIndex.value == 3 ? Icons.person : Icons.person_2_outlined),
                 label: 'Tài khoản'),
           ],
           currentIndex: homepage.selectedIndex.value,

@@ -51,6 +51,27 @@ dependencies:
   path_provider: ^2.0.13
   carousel_slider: ^4.2.1
   cached_network_image: ^3.2.3
+  image_picker: ^1.0.4
+  permission_handler: ^10.4.3
+  html: ^0.15.4
+  google_fonts: ^5.1.0
+  url_launcher: ^6.1.14
+  animated_text_kit: ^4.2.2
+  audioplayers: ^5.1.0
+  avatar_glow: ^2.0.2
+  flutter_keyboard_visibility: ^5.4.1
+  geocoding: ^2.1.0
+  geolocator: ^10.0.0
+  speech_to_text: ^6.3.0
+  video_player: ^2.7.1
+  text_to_speech: ^0.2.3
+  dio: ^5.3.3
+  device_info_plus: ^9.0.3
+  flutter_exif_rotation: ^0.5.1
+  sign_in_with_apple: ^5.0.0
+  pinput: ^3.0.1
+  image_gallery_saver: ^2.0.3
+  flutter_phoenix: ^1.1.1
 
 
 dev_dependencies:
@@ -81,6 +102,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/images/introImage/
     - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see

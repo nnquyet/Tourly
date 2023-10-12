@@ -9,9 +9,9 @@ import 'package:tourly/controllers/auth_controller/login_controller.dart';
 import 'package:tourly/views/auth_page/login_page.dart';
 import 'package:tourly/views/auth_page/sign_up_page.dart';
 
-class WelcomeScreen extends StatelessWidget {
-  WelcomeScreen({Key? key}) : super(key: key);
-  final LoginController login = Get.find();
+class Welcome extends StatelessWidget {
+  Welcome({Key? key}) : super(key: key);
+  final login = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {

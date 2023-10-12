@@ -1,5 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/controllers/resource.dart';
 import 'package:tourly/common/widgets/carousel_slider_custom.dart';
@@ -22,22 +24,22 @@ class AddressCardDetail extends StatelessWidget {
                 future: getImageUrlList(Resource().convertToSlug(addressModel.name)),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox(
-                      height: 300,
+                    return SizedBox(
+                      height: Get.size.width * 0.6,
                       width: double.infinity,
-                      child: null,
+                      child: const CupertinoActivityIndicator(),
                     );
                   }
                   if (snapshot.hasError) {
-                    return const SizedBox(
-                      height: 300,
+                    return SizedBox(
+                      height: Get.size.width * 0.6,
                       width: double.infinity,
-                      child: null,
+                      child: const CupertinoActivityIndicator(),
                     );
                   }
 
                   return CarouselSliderCustom(
-                    imageUrls: snapshot.data!.isEmpty ? [AppConst.defaultUrlAddress] : snapshot.data!,
+                    imageUrls: snapshot.data!,
                   );
                 },
               ),
@@ -65,7 +67,7 @@ class AddressCardDetail extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           '${addressModel.like}  ·  ',
-                          style: TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16),
                         ),
                         const Icon(
                           Icons.comment_outlined,
@@ -99,7 +101,7 @@ class AddressCardDetail extends StatelessWidget {
                     const SizedBox(height: 18),
                     Text(
                       addressModel.describe.replaceAll('  ', '\n\n'),
-                      style: TextStyle(fontSize: AppConst.kFontSize),
+                      style: const TextStyle(fontSize: AppConst.kFontSize),
                     )
                   ],
                 ),

@@ -1,19 +1,22 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
-import 'package:tourly/common/controllers/validation_controller.dart';
+import 'package:tourly/common/widgets/alert_dialog.dart';
 import 'package:tourly/common/widgets/name_divider.dart';
 import 'package:tourly/common/widgets/rounded_button.dart';
 import 'package:tourly/common/widgets/social_icon.dart';
 import 'package:tourly/common/widgets/text_field_container.dart';
 import 'package:tourly/controllers/auth_controller/login_controller.dart';
+import 'package:tourly/views/auth_page/login_phone_screen.dart';
 import 'package:tourly/views/auth_page/sign_up_page.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
-  final LoginController login = Get.find();
-  final ValidationController validation = Get.find();
+  final login = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +26,9 @@ class LoginScreen extends StatelessWidget {
           backgroundColor: AppConst.kPrimaryLightColor,
           appBar: AppBar(
             elevation: 0,
-            title: const Text('Đăng nhập', style: TextStyle(color: Colors.black54)),
+            title: const Text('Đăng nhập', style: TextStyle(color: Colors.black)),
             centerTitle: true,
-            iconTheme: const IconThemeData(color: Colors.black54),
+            iconTheme: const IconThemeData(color: Colors.black),
             backgroundColor: AppConst.kPrimaryLightColor,
           ),
           body: Padding(
@@ -36,11 +39,15 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Container(
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'assets/images/vietnam.jpeg',
+                        width: size.width * 0.5,
+                      ),
+                    ),
                     SizedBox(height: size.height * 0.04),
-                    const Text('Vui lòng nhập địa chỉ email của bạn và mật khẩu để đăng nhập',
-                        style: TextStyle(fontSize: 16)),
-                    SizedBox(height: size.height * 0.04),
-                    TextFieldContainer(
+                    TextFieldContainerAuth(
                       title: 'Email',
                       hintText: 'example@gmail.com',
                       controller: login.usernameController,
@@ -61,7 +68,7 @@ class LoginScreen extends StatelessWidget {
                       },
                     ),
                     SizedBox(height: size.height * 0.03),
-                    TextFieldContainer(
+                    TextFieldContainerAuth(
                       title: 'Mật khẩu',
                       hintText: 'Mật khẩu',
                       controller: login.passwordController,
@@ -109,25 +116,98 @@ class LoginScreen extends StatelessWidget {
                     RoundedButton(
                       text: 'Đăng nhập',
                       press: () async {
-                        await login.signInWithEmailAndPassword(context);
+                        if (login.formKeySignIn.currentState!.validate()) {
+                          await login.signInWithEmailAndPassword(context);
+                        }
                       },
                     ),
-                    SizedBox(height: size.height * 0.022),
-                    TextButton(
-                        onPressed: () {},
-                        child: const Text('Quên mật khẩu?', style: TextStyle(color: AppConst.kButtonColor))),
-                    SizedBox(height: size.height * 0.08),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              Get.dialog(
+                                AlertDialogCustom(
+                                  notification: "Quên mật khẩu",
+                                  children2: Form(
+                                    key: login.formKeyForgetPassword,
+                                    child: TextFieldContainerAuth(
+                                      title: 'Email',
+                                      hintText: "example@gmail.com",
+                                      onChanged: (value) {},
+                                      controller: login.usernameController,
+                                      // prefixIcon: Icons.email_outlined,
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          return 'Vui lòng nhập email';
+                                        }
+                                        String pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+                                        RegExp regex = new RegExp(pattern);
+                                        if (!regex.hasMatch(value)) {
+                                          return 'Vui lòng nhập đúng định dạng email';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                  onPress: () {
+                                    if (login.formKeyForgetPassword.currentState!.validate()) {
+                                      Get.dialog(const Center(child: CircularProgressIndicator()));
+                                      FirebaseAuth.instance
+                                          .sendPasswordResetEmail(email: login.usernameController.text)
+                                          .catchError((onError) => print('Error sending email verification $onError'))
+                                          .then(
+                                        (value) {
+                                          Get.back();
+                                          Get.back();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Icon(Icons.check_box, color: Colors.white),
+                                                  SizedBox(width: 8.0),
+                                                  Flexible(
+                                                    child: Text(
+                                                      'Hãy kiểm tra email để lấy lại mật khẩu',
+                                                      style: TextStyle(color: Colors.white),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              backgroundColor: Colors.cyan,
+                                              duration: Duration(seconds: 5),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }
+                                  },
+                                ),
+                              );
+                            },
+                            child: const Text('Quên mật khẩu?',
+                                style: TextStyle(color: AppConst.kButtonColor, fontWeight: FontWeight.w400))),
+                        TextButton(
+                            onPressed: () {
+                              Get.off(() => LoginPhoneScreen());
+                            },
+                            child: const Text('Đăng nhập với SMS',
+                                style: TextStyle(color: AppConst.kButtonColor, fontWeight: FontWeight.w400))),
+                      ],
+                    ),
+                    SizedBox(height: size.height * 0.02),
                     const NameDivider(text: 'Hoặc tiếp tục với'),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SocialIcon(iconSrc: 'assets/images/facebook.png', press: () {}),
                         SocialIcon(
-                          iconSrc: 'assets/images/google.png',
-                          press: () {
-                            login.signInWithGoogle(context: context);
-                          },
-                        ),
+                            iconSrc: 'assets/images/google.png',
+                            press: () {
+                              login.signInWithGoogle(context: context);
+                            }),
                         SocialIcon(iconSrc: 'assets/images/github.png', press: () {})
                       ],
                     ),
@@ -144,8 +224,6 @@ class LoginScreen extends StatelessWidget {
                             'Đăng ký',
                             style: TextStyle(
                               color: AppConst.kButtonColor,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
                               decorationThickness: 2,
                             ),
                           ),

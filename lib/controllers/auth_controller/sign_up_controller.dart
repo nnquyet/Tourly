@@ -1,28 +1,28 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:tourly/controllers/auth_controller/hadleUser.dart';
+import 'package:http/http.dart' as http;
+import 'package:tourly/controllers/auth_controller/hadle_user.dart';
 import 'package:tourly/models/user_model.dart';
 import 'package:tourly/views/auth_page/login_page.dart';
-import 'package:tourly/views/home_page.dart';
 
 class SignupController extends GetxController {
   final box = GetStorage();
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final formKeySignUp = GlobalKey<FormState>();
-  Rx<bool> passwordVisible = false.obs;
-  Rx<bool> passwordConfirmVisible = false.obs;
-  Rx<bool> isAgreedToPrivacyPolicy = false.obs;
-  Rx<bool> regSuccess = false.obs;
+
+  RxBool isPasswordVisible = false.obs;
+  RxBool isPasswordConfirmVisible = false.obs;
+  RxBool isAgreedToPrivacyPolicy = false.obs;
 
   late TextEditingController fullNameController;
   late TextEditingController usernameController;
   late TextEditingController passwordController;
   late TextEditingController confirmPassController;
-
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   @override
   void onInit() {
@@ -44,28 +44,42 @@ class SignupController extends GetxController {
     confirmPassController.dispose();
   }
 
-  Future<void> onPressSignupButton() async {
-    if (formKeySignUp.currentState!.validate()) {
-      // regSuccess.value ? Get.snackbar("Thông báo", "Đăng ký thành công") : Get.snackbar("Lỗi", notification);
-      // if (regSuccess.value) {
-      //   Get.offAll(LoginScreen());
-      // }
-    }
-  }
-
   Future<void> createUserWithEmailAndPassword(String email, String password, BuildContext context) async {
     try {
       await firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
-
       User? user = firebaseAuth.currentUser;
-      UserModel? userModel;
-      userModel?.fullName = fullNameController.text;
 
       //clear tài khoản và mật khẩu đã lưu ở màn hình Login
       box.remove('username');
       box.remove('password');
-      await HandleUser()
-          .addInfoUser(fullNameController.text, usernameController.text, user!.uid, '', '', '', '', imageFile: null);
+
+      if (user != null) {
+        final Reference storageReference = FirebaseStorage.instance.ref().child('images/${user.uid}.jpg');
+
+        // Tải hình ảnh từ URL trực tiếp lên Firebase Storage
+        final http.Response response =
+            await http.get(Uri.parse('https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png'));
+        final Uint8List imageData = response.bodyBytes;
+        final UploadTask uploadTask = storageReference.putData(imageData);
+        await uploadTask;
+
+        // Lấy đường dẫn tới tệp hình ảnh sau khi tải lên thành công
+        final String downloadURL = await storageReference.getDownloadURL();
+
+        UserModel userModel = UserModel(
+          fullName: fullNameController.text,
+          email: usernameController.text,
+          id: user.uid,
+          imagePath: downloadURL,
+          sex: '',
+          phoneNumber: '',
+          birthDay: '',
+          address: '',
+          loginWith: 'email',
+        );
+        await HandleUser().addInfoUser(userModel);
+      }
+      Get.back();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -74,17 +88,18 @@ class SignupController extends GetxController {
               Icon(Icons.check_box, color: Colors.white),
               SizedBox(width: 8.0),
               Text(
-                'Đã tạo tài khoản thành công.',
+                'Đã tạo tài khoản thành công.\nVui lòng kiểm tra email để xác thực tài khoản',
                 style: TextStyle(color: Colors.white),
               ),
             ],
           ),
           backgroundColor: Colors.cyan,
-          duration: Duration(seconds: 3),
+          duration: Duration(seconds: 5),
         ),
       );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      Get.off(() => LoginScreen());
     } on FirebaseAuthException catch (e) {
+      Get.back();
       if (e.code == 'invalid-email') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

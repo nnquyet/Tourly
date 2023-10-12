@@ -1,62 +1,112 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:tourly/controllers/auth_controller/hadleUser.dart';
-import 'package:tourly/models/user_model.dart';
-import 'package:tourly/views/auth_page/login_page.dart';
-import 'package:tourly/views/home_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:tourly/common/widgets/alert_dialog.dart';
+import 'package:tourly/controllers/auth_controller/data_user.dart';
+import 'package:tourly/controllers/auth_controller/hadle_user.dart';
+import 'package:tourly/models/user_model.dart';
+import 'package:tourly/views/home_page.dart';
 
 class LoginController extends GetxController {
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final box = GetStorage();
+  final formKeySignIn = GlobalKey<FormState>();
+  final formKeyForgetPassword = GlobalKey<FormState>();
+
+  //Login Phone
+  RxString phoneNumber = "".obs;
+  RxString verify = "".obs;
+  RxString code = "".obs;
+  late Rx<TextEditingController> countryController = TextEditingController().obs;
+
+  //Login Email/Password
   Rx<bool> passwordVisible = false.obs;
   late Rx<bool> isRememberLogin;
-  Rx<bool> loginSuccess = false.obs;
-
-  final formKeySignIn = GlobalKey<FormState>();
-
   late TextEditingController usernameController;
   late TextEditingController passwordController;
-
-  late UserModel userModel;
-  RxString token = ''.obs;
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   @override
   Future<void> onInit() async {
     // TODO: implement onInit
     super.onInit();
+    countryController.value.text = "+84";
+
     usernameController = TextEditingController(text: box.read("username"));
     passwordController = TextEditingController(text: box.read("password"));
     isRememberLogin = ((box.read("username") != null) && (box.read("password") != null)).obs;
   }
 
-  @override
-  void onClose() {
-    // TODO: implement onClose
-    super.onClose();
-    usernameController.dispose();
-    passwordController.dispose();
+  void rememberLogin() {
+    if (isRememberLogin.value) {
+      box.write('username', usernameController.text);
+      box.write('password', passwordController.text);
+    } else {
+      box.remove('username');
+      box.remove('password');
+    }
   }
 
-  void rememberLogin() {
-    if (formKeySignIn.currentState!.validate()) {
-      if (isRememberLogin.value) {
-        box.write('username', usernameController.text);
-        box.write('password', passwordController.text);
-      } else {
-        box.remove('username');
-        box.remove('password');
-      }
+  Future<void> signInWithPhoneNumber(BuildContext context) async {
+    Get.dialog(const Center(child: CircularProgressIndicator()));
+    box.remove('username');
+    box.remove('password');
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verify.value, smsCode: code.value);
+
+    // Sign the user in (or link) with the credential
+    final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
+    User? user = userCredential.user;
+
+    if (user != null) {
+      DataUser.userModel.value = UserModel(
+        fullName: 'Họ và tên',
+        email: '',
+        id: user.uid,
+        imagePath: '',
+        sex: '',
+        phoneNumber: user.phoneNumber ?? '',
+        birthDay: '',
+        address: '',
+        loginWith: 'phone',
+      );
     }
+
+    final userRef = FirebaseFirestore.instance.collection('users').doc(user?.phoneNumber);
+    final documentSnapshot = await userRef.get();
+    if (documentSnapshot.exists) {
+      print('Tài liệu đã tồn tại!');
+      final data = documentSnapshot.data();
+      final dataConvert = data as Map;
+      print('dataConvert: ${dataConvert.toString()}');
+      DataUser.userModel.value = UserModel.fromJson(dataConvert as Map<String, dynamic>);
+    } else {
+      print('Tài liệu không tồn tại.');
+      final Reference storageReference =
+          FirebaseStorage.instance.ref().child('images/${DataUser.userModel.value.id}.jpg');
+
+      // Tải hình ảnh từ URL trực tiếp lên Firebase Storage
+      final http.Response response =
+          await http.get(Uri.parse('https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png'));
+      final Uint8List imageData = response.bodyBytes;
+      final UploadTask uploadTask = storageReference.putData(imageData);
+      await uploadTask;
+
+      // Lấy đường dẫn tới tệp hình ảnh sau khi tải lên thành công
+      final String downloadURL = await storageReference.getDownloadURL();
+      DataUser.userModel.value.imagePath = downloadURL;
+
+      await HandleUser().addInfoUser(DataUser.userModel.value);
+    }
+    box.write('user', DataUser.userModel.value.toJson());
+
+    Get.back();
+    Get.offAll(() => HomePage());
   }
 
   Future<void> signInWithEmailAndPassword(BuildContext context) async {
@@ -67,20 +117,48 @@ class LoginController extends GetxController {
           email: usernameController.value.text, password: passwordController.value.text);
 
       User? user = firebaseAuth.currentUser;
-      userModel = UserModel(user?.uid, user?.email, user?.displayName, user?.photoURL);
-      final userRef = FirebaseFirestore.instance.collection('0users').doc(user?.email);
+      if (user != null) {
+        bool isVerify = user.emailVerified;
+        if (!isVerify) {
+          Get.dialog(
+            AlertDialogCustom(
+                notification: "Vui lòng kiểm tra email để xác thực tài khoản",
+                onPress: () {
+                  Get.back();
+                }),
+          );
+          return;
+        }
+
+        Get.dialog(const Center(child: CircularProgressIndicator()));
+
+        DataUser.userModel.value = UserModel(
+          fullName: user.displayName ?? '',
+          email: user.email ?? '',
+          id: user.uid,
+          imagePath: user.photoURL ?? '',
+          sex: '',
+          phoneNumber: '',
+          birthDay: '',
+          address: '',
+          loginWith: 'email',
+        );
+      }
+      final userRef = FirebaseFirestore.instance.collection('users').doc(user?.email);
       final documentSnapshot = await userRef.get();
       if (documentSnapshot.exists) {
         print('Tài liệu đã tồn tại!');
         final data = documentSnapshot.data();
         final dataConvert = data as Map;
-        userModel = UserModel.fromJson(dataConvert);
+        DataUser.userModel.value = UserModel.fromJson(dataConvert as Map<String, dynamic>);
       } else {
         print('Tài liệu không tồn tại.');
       }
+      box.write('user', DataUser.userModel.value.toJson());
 
       // MyData.conversationMessages = await Handle().readSection(userCustom.id);
-      Get.offAll(HomePage());
+      Get.back();
+      Get.offAll(() => HomePage());
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -141,7 +219,8 @@ class LoginController extends GetxController {
   }
 
   Future<User?> signInWithGoogle({required BuildContext context}) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
+    box.remove('username');
+    box.remove('password');
     User? user;
 
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -156,36 +235,53 @@ class LoginController extends GetxController {
         idToken: googleSignInAuthentication.idToken,
       );
       try {
-        final UserCredential userCredential = await auth.signInWithCredential(credential);
+        Get.dialog(const Center(child: CircularProgressIndicator()));
+
+        final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
         user = userCredential.user;
 
-        // await prefs.setString('key_save_emailGG', googleSignInAuthentication.accessToken!);
-        // await prefs.setString('key_save_passwordGG', googleSignInAuthentication.idToken!);
+        if (user != null) {
+          DataUser.userModel.value = UserModel(
+            fullName: user.displayName ?? '',
+            email: user.email ?? '',
+            id: user.uid,
+            imagePath: user.photoURL ?? '',
+            sex: '',
+            phoneNumber: '',
+            birthDay: '',
+            address: '',
+            loginWith: 'email',
+          );
+        }
 
-        userModel = UserModel(user?.uid, user?.email, user?.displayName, user?.photoURL);
-        final userRef = FirebaseFirestore.instance.collection('0users').doc(user?.email ?? '');
+        final userRef = FirebaseFirestore.instance.collection('users').doc(user?.email ?? '');
         final documentSnapshot = await userRef.get();
         if (documentSnapshot.exists) {
           print('Tài liệu đã tồn tại!');
           final data = documentSnapshot.data();
           final dataConvert = data as Map;
           print('dataConvert: ${dataConvert.toString()}');
-          userModel = UserModel.fromJson(dataConvert);
+          DataUser.userModel.value = UserModel.fromJson(dataConvert as Map<String, dynamic>);
         } else {
           print('Tài liệu không tồn tại.');
-          final http.Response responseData = await http.get(Uri.parse(userModel.imagePath));
-          Uint8List uint8list = responseData.bodyBytes;
-          var buffer = uint8list.buffer;
-          ByteData byteData = ByteData.view(buffer);
-          var tempDir = await getTemporaryDirectory();
-          File file = await File('${tempDir.path}/img')
-              .writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-          await HandleUser()
-              .addInfoUser(userModel.fullName, userModel.email, userModel.id, '', '', '', '', imageFile: file);
-        }
+          final Reference storageReference =
+              FirebaseStorage.instance.ref().child('images/${DataUser.userModel.value.id}.jpg');
 
-        // MyData.conversationMessages = await Handle().readSection(userModel.id);
-        Get.offAll(HomePage());
+          // Tải hình ảnh từ URL trực tiếp lên Firebase Storage
+          final http.Response response = await http.get(Uri.parse(DataUser.userModel.value.imagePath));
+          final Uint8List imageData = response.bodyBytes;
+          final UploadTask uploadTask = storageReference.putData(imageData);
+          await uploadTask;
+
+          // Lấy đường dẫn tới tệp hình ảnh sau khi tải lên thành công
+          final String downloadURL = await storageReference.getDownloadURL();
+          DataUser.userModel.value.imagePath = downloadURL;
+
+          await HandleUser().addInfoUser(DataUser.userModel.value);
+        }
+        box.write('user', DataUser.userModel.value.toJson());
+
+        Get.offAll(() => HomePage());
       } on FirebaseAuthException catch (e) {
         if (e.code == 'account-exists-with-different-credential') {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -220,7 +316,7 @@ class LoginController extends GetxController {
             duration: Duration(seconds: 3),
           ));
         }
-        signOutGoogle(context: context);
+        await signOut(context: context);
       } catch (e) {
         print('e.code: ${e}');
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -238,13 +334,13 @@ class LoginController extends GetxController {
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ));
-        signOutGoogle(context: context);
+        await signOut(context: context);
       }
     }
     return user;
   }
 
-  Future<void> signOutGoogle({required BuildContext context}) async {
+  Future<void> signOut({required BuildContext context}) async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
