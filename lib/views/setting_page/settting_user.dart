@@ -9,7 +9,7 @@ import '../../../common/widgets/rounded_button.dart';
 import '../../../common/widgets/text_field_container.dart';
 import '../../common/app_constants.dart';
 import '../../controllers/auth_controller/data_user.dart';
-import '../../controllers/auth_controller/hadle_user.dart';
+import '../../controllers/auth_controller/handle_user.dart';
 import '../../controllers/home_page_controller/setting_controller.dart';
 import '../../models/user_model.dart';
 

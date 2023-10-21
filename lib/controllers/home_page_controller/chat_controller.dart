@@ -28,7 +28,7 @@ import 'package:tourly/common/api_services.dart';
 import 'package:tourly/common/widgets/alert_dialog.dart';
 import 'package:tourly/common/widgets/showToast.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
-import 'package:tourly/controllers/auth_controller/hadle_user.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/controllers/home_page_controller/setting_controller.dart';
 import 'package:tourly/views/chat_page/chat_item.dart';
 import 'package:video_player/video_player.dart';
@@ -293,7 +293,6 @@ class ChatController extends GetxController {
     checkGenerateQuestion.value = false;
     showImagesSuggest.value = false;
     String replyText = '';
-    String replyTextMyModel = '';
     // String keywordForImage = '';
     String weatherCurrent = '';
     String weather5Days = '';
@@ -356,58 +355,33 @@ class ChatController extends GetxController {
     messages.insert(0, chatMessage);
     questionScreenBot.value = text;
 
-    if (setting.selectedChatChannels.contains('Văn bản pháp lý') && !setting.selectedChatChannels.contains('ChatGPT')) {
-      final inputApiModel = text.split('\n');
-      replyText = await ApiChatBotServices.modelData(inputApiModel[0], inputApiModel[1]);
-    } else if (setting.selectedChatChannels.contains('ChatGPT') &&
-        !setting.selectedChatChannels.contains('Văn bản pháp lý')) {
-      if (!replyText.contains('Vui lòng')) {
-        if (chatMessage.text.toLowerCase().contains('thời tiết tại')) {
-          replyText = "Hãy xem thêm thông tin thời tiết ở bên dưới\n$weatherCurrent\n$weather5Days";
-        } else if (text.toLowerCase().contains('thời tiết')) {
-          replyText =
-              'Hãy xem thông tin thời tiết tại $position ở bên dưới. Nếu bạn muốn xem thời tiết tại vị trí khác hãy nhập theo ví dụ: "Thời tiết tại Hà Nội"\n$weatherCurrent\n$weather5Days';
-        } else {
-          final msg = await ApiChatBotServices().sendMessage(messages.map((message) => message.text).toList());
-          replyText = msg.trim().replaceAll('\n', '').isEmpty ? HandleUser().handleUserInput(text) : msg.trim();
-
-          if (replyText == 'Xin lỗi, tôi không hiểu câu hỏi của bạn. Hãy thử lại với câu hỏi khác.') {
-            replyText =
-                'Api key của bạn không hợp lệ, vui lòng kiểm tra lại trong Setting/bot. Hoặc xem thêm ở bên dưới...';
-          }
+    if (!replyText.contains('Vui lòng')) {
+      if (chatMessage.text.toLowerCase().contains('thời tiết tại')) {
+        replyText = "Hãy xem thêm thông tin thời tiết ở bên dưới\n$weatherCurrent\n$weather5Days";
+      } else if (text.toLowerCase().contains('thời tiết')) {
+        replyText =
+            'Hãy xem thông tin thời tiết tại $position ở bên dưới. Nếu bạn muốn xem thời tiết tại vị trí khác hãy nhập theo ví dụ: "Thời tiết tại Hà Nội"\n$weatherCurrent\n$weather5Days';
+      } else {
+        if (setting.selectedChatChannels.value == 0) {
+          replyText = await ApiChatBotServices().sendMessage(messages.map((message) => message.text).toList());
         }
       }
-      if (text.contains('Chỉ đường từ')) {
-        replyText = await ApiChatBotServices.getDirections(originController.text, destinationController.text);
-        originController.clear();
-        destinationController.clear();
-      }
-    } else {
-      if (!replyText.contains('Vui lòng')) {
-        if (chatMessage.text.toLowerCase().contains('thời tiết tại')) {
-          replyText = "Hãy xem thêm thông tin thời tiết ở bên dưới\n$weatherCurrent\n$weather5Days";
-        } else if (text.toLowerCase().contains('thời tiết')) {
-          replyText =
-              'Hãy xem thông tin thời tiết tại $position ở bên dưới. Nếu bạn muốn xem thời tiết tại vị trí khác hãy nhập theo ví dụ: "Thời tiết tại Hà Nội"\n$weatherCurrent\n$weather5Days';
-        } else {
-          final msg = await ApiChatBotServices().sendMessage(messages.map((message) => message.text).toList());
-          replyText = msg.trim().replaceAll('\n', '').isEmpty ? HandleUser().handleUserInput(text) : msg.trim();
+    }
 
-          if (replyText == 'Xin lỗi, tôi không hiểu câu hỏi của bạn. Hãy thử lại với câu hỏi khác.') {
-            replyText =
-                'Api key của bạn không hợp lệ, vui lòng kiểm tra lại trong Setting/bot. Hoặc xem thêm ở bên dưới...';
-          }
-        }
-      }
-      if (text.contains('Chỉ đường từ')) {
-        replyText = await ApiChatBotServices.getDirections(originController.text, destinationController.text);
-        originController.clear();
-        destinationController.clear();
-      }
-      replyTextMyModel = await ApiChatBotServices.modelData(text, replyText);
-      String rep = '$replyText\n\n\n$replyTextMyModel';
-      replyTextMyModel = 'ChatGPT\n---------------\n$replyText\n\n\nMyModel\n---------------\n$replyTextMyModel';
-      replyText = rep;
+    if (text.contains('Chỉ đường từ')) {
+      replyText = await ApiChatBotServices.getDirections(originController.text, destinationController.text);
+      originController.clear();
+      destinationController.clear();
+    }
+
+    // replyText = msg.trim().replaceAll('\n', '').isEmpty ? HandleUser().handleUserInput(text) : msg.trim();
+    //
+    // if (replyText == 'Xin lỗi, tôi không hiểu câu hỏi của bạn. Hãy thử lại với câu hỏi khác.') {
+    //   replyText = await ApiChatBotServices().claudeAI(text);
+    // }
+
+    if (replyText == '') {
+      replyText = 'Api key của bạn không hợp lệ, vui lòng kiểm tra lại trong Setting';
     }
 
     ChatMessage reply = ChatMessage(
@@ -418,19 +392,9 @@ class ChatController extends GetxController {
       time: time.value,
     );
 
-    if (replyTextMyModel == '') replyTextMyModel = replyText;
-
-    ChatMessage replyModel = ChatMessage(
-      text: replyTextMyModel,
-      isUser: false,
-      isNewMessage: true,
-      isDisplayTime: false,
-      time: time.value,
-    );
-
     await HandleUser().addChat(chatMessage.text, reply.text, time.value);
 
-    playAudio(reply, replyModel);
+    playAudio(reply);
 
     print('rep: ${reply.text}');
 
@@ -451,26 +415,6 @@ class ChatController extends GetxController {
     print('question: $result');
     handleQuestionReturn(result);
 
-    //Quét các từ khoá có trong reply
-    // final topics = _handle.questions.keys.toList();
-    // for (var topic in topics) {
-    //   var checkExistKeyword = false;
-    //   for (var key in topic) {
-    //     RegExp exp = new RegExp(r"(^|\W)" + key + r"(\W|$)");
-    //     if (exp.hasMatch(reply.text.toLowerCase())) {
-    //       checkExistKeyword = true;
-    //       break;
-    //     }
-    //   }
-    //   if (checkExistKeyword) {
-    //     listKeywords.add(topic[0]);
-    //     checkExistKeyword = false;
-    //   }
-    // }
-    //
-    // listKeywords.add('Xem thêm');
-    // suggestTopic = true;
-
     //Get image from API
     if (setting.generateImage.value) {
       if (setting.imageSource.value == 'Google') {
@@ -486,14 +430,9 @@ class ChatController extends GetxController {
             'Api key của bạn không hợp lệ, vui lòng kiểm tra lại trong Setting/bot. Hoặc xem thêm ở bên dưới...' ||
         translatedTextImage.value == '') {
       showQuestionsSuggest.value = false;
-    } else {
-      // await _handle.addKeyword(translatedTextImage);
     }
 
     await searchInBrowser(translatedTextImage.value);
-
-    //Thêm keyword lên database
-    // await _handle.addKeyword(translatedTextImage);
   }
 
   Future<void> searchInBrowser(String keyword) async {
@@ -517,26 +456,26 @@ class ChatController extends GetxController {
       resultDomains.add(domain);
       print('url: $url}');
     }
-    //   if (!await launchUrl(Uri.parse(firstResultUrl))) {
-    //     throw Exception('Could not launch $firstResultUrl');
-    //   }
   }
 
-  Future<void> playAudio(ChatMessage reply, ChatMessage replyModel) async {
+  Future<void> playAudio(ChatMessage reply) async {
     try {
       if (setting.generateVoice.value.toString() == 'false') {
-        messagesList.insert(0, replyModel);
+        messagesList.insert(0, reply);
         selectedMessage.insert(0, false);
         messages.insert(0, reply);
         showQuestionsSuggest.value = true;
-        // topic = '';
-        checkGenerateReply.value = true;
+        Future.delayed(Duration(milliseconds: reply.text.length * 30), () {
+          if (messagesList.isNotEmpty && messagesList[0] is ChatMessage) {
+            messagesList.first.isNewMessage = false;
+            checkGenerateReply.value = true;
+          }
+        });
       } else if (setting.selectedVoice.value == 'Google') {
-        messagesList.insert(0, replyModel);
+        messagesList.insert(0, reply);
         selectedMessage.insert(0, false);
         messages.insert(0, reply);
         showQuestionsSuggest.value = true;
-        // topic = '';
         switchVideo();
         checkGenerateReply.value = false;
         textToSpeech.speak(reply.text);
@@ -549,11 +488,10 @@ class ChatController extends GetxController {
       } else {
         String audioUrl = await ApiChatBotServices().getAudioUrl(reply.text);
         await audioPlayer.play(UrlSource(audioUrl));
-        messagesList.insert(0, replyModel);
+        messagesList.insert(0, reply);
         selectedMessage.insert(0, false);
         messages.insert(0, reply);
         showQuestionsSuggest.value = true;
-        // topic = '';
         switchVideo();
 
         // 3 cho AudioPlayerState.completed.

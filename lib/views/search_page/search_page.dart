@@ -1,13 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/views/cards/address_card_detail.dart';
 import 'package:tourly/controllers/home_page_controller/search_page_controller.dart';
 import 'package:tourly/views/cards/address_card.dart';
+import 'package:tourly/views/chat_page/chat_screen.dart';
 import 'package:tourly/views/search_page/search_bar_page.dart';
-
-import '../chat_page/chat_screen.dart';
 
 class SearchPage extends StatelessWidget {
   SearchPage({super.key});
@@ -16,7 +15,6 @@ class SearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Obx(
       () {
         return SafeArea(
@@ -88,15 +86,15 @@ class SearchPage extends StatelessWidget {
                                 const PopupMenuItem(value: 'Đà Nẵng', child: Text('Đà Nẵng')),
                               ];
                             },
-                            constraints: BoxConstraints(maxWidth: 145),
-                            offset: Offset(0, 32),
+                            constraints: const BoxConstraints(maxWidth: 145),
+                            offset: const Offset(0, 32),
                             onSelected: (value) {
                               search.selectedAddress.value = value;
                               search.filterAddress();
                             },
                             child: search.buildButtonOptions("Địa điểm", search.selectedAddress),
                           ),
-                          SizedBox(width: size.width * 0.02),
+                          SizedBox(width: search.size.value.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -111,15 +109,15 @@ class SearchPage extends StatelessWidget {
                                 const PopupMenuItem(value: 'Triển lãm', child: Text('Triển lãm')),
                               ];
                             },
-                            constraints: BoxConstraints(maxWidth: 145),
-                            offset: Offset(0, 32),
+                            constraints: const BoxConstraints(maxWidth: 145),
+                            offset: const Offset(0, 32),
                             onSelected: (value) {
                               search.selectedEntertain.value = value;
                               search.filterAddress();
                             },
                             child: search.buildButtonOptions("Giải trí", search.selectedEntertain),
                           ),
-                          SizedBox(width: size.width * 0.02),
+                          SizedBox(width: search.size.value.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -130,15 +128,15 @@ class SearchPage extends StatelessWidget {
                                 const PopupMenuItem(value: 'Truyền thống', child: Text('Truyền thống')),
                               ];
                             },
-                            constraints: BoxConstraints(maxWidth: 130),
-                            offset: Offset(0, 32),
+                            constraints: const BoxConstraints(maxWidth: 130),
+                            offset: const Offset(0, 32),
                             onSelected: (value) {
                               search.selectedCulture.value = value;
                               search.filterAddress();
                             },
                             child: search.buildButtonOptions("Văn hoá", search.selectedCulture),
                           ),
-                          SizedBox(width: size.width * 0.02),
+                          SizedBox(width: search.size.value.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -151,15 +149,15 @@ class SearchPage extends StatelessWidget {
                                 const PopupMenuItem(value: 'Đồng cỏ', child: Text('Đồng cỏ')),
                               ];
                             },
-                            constraints: BoxConstraints(maxWidth: 120),
-                            offset: Offset(0, 32),
+                            constraints: const BoxConstraints(maxWidth: 120),
+                            offset: const Offset(0, 32),
                             onSelected: (value) {
                               search.selectedNature.value = value;
                               search.filterAddress();
                             },
                             child: search.buildButtonOptions("Thiên nhiên", search.selectedNature),
                           ),
-                          SizedBox(width: size.width * 0.02),
+                          SizedBox(width: search.size.value.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -170,15 +168,15 @@ class SearchPage extends StatelessWidget {
                                 const PopupMenuItem(value: 'Đi bộ', child: Text('Đi bộ')),
                               ];
                             },
-                            constraints: BoxConstraints(maxWidth: 125),
-                            offset: Offset(0, 32),
+                            constraints: const BoxConstraints(maxWidth: 125),
+                            offset: const Offset(0, 32),
                             onSelected: (value) {
                               search.selectedActivities.value = value;
                               search.filterAddress();
                             },
                             child: search.buildButtonOptions("Hoạt động", search.selectedActivities),
                           ),
-                          SizedBox(width: size.width * 0.02),
+                          SizedBox(width: search.size.value.width * 0.02),
                         ],
                       ),
                     ),
@@ -189,8 +187,7 @@ class SearchPage extends StatelessWidget {
             body: Stack(
               children: [
                 Container(
-                  padding: EdgeInsets.fromLTRB(search.size.value.width * 0.06, search.size.value.width * 0.06,
-                      search.size.value.width * 0.06, 0),
+                  padding: EdgeInsets.symmetric(horizontal: search.size.value.width * 0.06),
                   child: ListView.builder(
                     itemCount: search.filterAddressList.length,
                     itemBuilder: (context, index) {
@@ -198,6 +195,7 @@ class SearchPage extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 25.0),
                         child: InkWell(
                             onTap: () {
+                              HandleUser().increaseViews(search.filterAddressList[index]);
                               Get.to(() => AddressCardDetail(addressModel: search.filterAddressList[index]));
                             },
                             child: AddressCard(search.filterAddressList[index])),

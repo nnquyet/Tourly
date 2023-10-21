@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -13,7 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/widgets/showToast.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
-import 'package:tourly/controllers/auth_controller/hadle_user.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/models/user_model.dart';
 
 class SettingController extends GetxController {
@@ -41,8 +42,8 @@ class SettingController extends GetxController {
   late Rx<TextEditingController> keyAPIController = TextEditingController().obs;
   RxList<String> listKeysAPI = <String>[].obs;
 
-  final List<String> chatChannel = ['ChatGPT', 'Văn bản pháp lý'];
-  RxList<String> selectedChatChannels = <String>['ChatGPT'].obs; // Sử dụng Set để lưu trạng thái các checkbox được chọn
+  final List<String> chatChannel = ['ChatGPT'];
+  RxInt selectedChatChannels = 0.obs;
 
   @override
   void onInit() {
@@ -54,7 +55,7 @@ class SettingController extends GetxController {
     generateVoice.value = box.read('generateVoice') ?? false;
     imageSource.value = box.read('imageSource') ?? 'Google';
     selectedVoice.value = box.read('selectedVoice') ?? 'Google';
-    // selectedChatChannels.value = box.read('selectedChatChannels') ?? ['ChatGPT'];
+    selectedChatChannels.value = box.read('selectedChatChannels') ?? 0;
   }
 
   @override
@@ -80,11 +81,23 @@ class SettingController extends GetxController {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('apiKeys').get();
     for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
       Map<String, dynamic>? data = documentSnapshot.data() as Map<String, dynamic>?;
-      if (data!.containsKey('key')) {
-        listKeysAPI.add(data['key']);
+      for (int i = 0; i < data!.length; i++) {
+        if (data.containsKey('key$i')) {
+          listKeysAPI.add(data['key$i']);
+        }
+      }
+      if (data.length > 5) {
+        chatChannel.removeAt(1);
       }
     }
-    print('key: ${listKeysAPI[0]}');
+    print('key: ${listKeysAPI.length}');
+  }
+
+  String randomKeyAPI() {
+    var random = Random();
+    int index = random.nextInt(listKeysAPI.length);
+    print(listKeysAPI[index]);
+    return listKeysAPI[index];
   }
 
   Future<void> chooseImage() async {

@@ -34,7 +34,7 @@ class ApiChatBotServices {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-          'Bearer ${setting.keyAPIController.value.text == '' ? setting.listKeysAPI[0] : setting.keyAPIController.value.text}',
+              'Bearer ${setting.keyAPIController.value.text == '' ? setting.randomKeyAPI() : setting.keyAPIController.value.text}',
         },
         body: jsonEncode({
           "model": "gpt-3.5-turbo",
@@ -70,7 +70,7 @@ class ApiChatBotServices {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-          'Bearer ${setting.keyAPIController.value.text == '' ? setting.listKeysAPI[0] : setting.keyAPIController.value.text}',
+              'Bearer ${setting.keyAPIController.value.text == '' ? setting.randomKeyAPI() : setting.keyAPIController.value.text}',
         },
         body: jsonEncode({
           'model': 'text-davinci-003',
@@ -97,7 +97,7 @@ class ApiChatBotServices {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-          'Bearer ${setting.keyAPIController.value.text == '' ? setting.listKeysAPI[0] : setting.keyAPIController.value.text}',
+              'Bearer ${setting.keyAPIController.value.text == '' ? setting.randomKeyAPI() : setting.keyAPIController.value.text}',
         },
         body: jsonEncode({
           "model": "gpt-3.5-turbo",
@@ -105,7 +105,7 @@ class ApiChatBotServices {
             {
               "role": "user",
               "content":
-              "Take the 3 main keywords from the following passage: \'$question $message\', and translate those keywords into English according to the format: \"[keywordInEnglish]: [keywordInVietNamese]\""
+                  "Take the 3 main keywords from the following passage: \'$question $message\', and translate those keywords into English according to the format: \"[keywordInEnglish]: [keywordInVietNamese]\""
               // Take 1 main keyword in the following sentence and then translate it into English and divide it with a \':\'
               // Take the 3 main keywords in the following sentence and translate them into English:
             }
@@ -133,7 +133,7 @@ class ApiChatBotServices {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-          'Bearer ${setting.keyAPIController.value.text == '' ? setting.listKeysAPI[0] : setting.keyAPIController.value.text}',
+              'Bearer ${setting.keyAPIController.value.text == '' ? setting.randomKeyAPI() : setting.keyAPIController.value.text}',
         },
         body: jsonEncode({
           "prompt": text,
@@ -159,7 +159,7 @@ class ApiChatBotServices {
         headers: {
           'Content-Type': 'application/json',
           'Authorization':
-          'Bearer ${setting.keyAPIController.value.text == '' ? setting.listKeysAPI[0] : setting.keyAPIController.value.text}',
+              'Bearer ${setting.keyAPIController.value.text == '' ? setting.randomKeyAPI() : setting.keyAPIController.value.text}',
         },
         body: jsonEncode({
           "model": "gpt-3.5-turbo",
@@ -233,7 +233,7 @@ class ApiChatBotServices {
 
   static Future<String> getImageUrl(String query) async {
     final response =
-    await http.get(Uri.parse('https://api.unsplash.com/photos/random?query=$query&client_id=$apiKeyUnsplash'));
+        await http.get(Uri.parse('https://api.unsplash.com/photos/random?query=$query&client_id=$apiKeyUnsplash'));
     final data = jsonDecode(response.body);
     final imageUrl = data['urls']['small'];
     return imageUrl;
@@ -330,7 +330,7 @@ class ApiChatBotServices {
         var data = json.decode(response.body);
         // Xử lý dữ liệu theo nhu cầu của bạn
         dataWeather =
-        'Nhiệt độ: ${data['main']['temp']}°C\nĐộ ẩm: ${data['main']['humidity']}%\nTrạng thái: ${data['weather'][0]['description']}';
+            'Nhiệt độ: ${data['main']['temp']}°C\nĐộ ẩm: ${data['main']['humidity']}%\nTrạng thái: ${data['weather'][0]['description']}';
         print('Thời tiết hiện tại\n$dataWeather');
         return dataWeather = '\nThời tiết hiện tại:\n$dataWeather';
       } else {

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
-import 'package:tourly/controllers/auth_controller/hadle_user.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/models/address_model.dart';
 import 'package:tourly/views/search_page/search_bar_page.dart';
 
@@ -37,7 +37,7 @@ class SearchPageController extends GetxController {
 
     Future.delayed(const Duration(milliseconds: 0), () async {
       // await getDataFromApi();
-      await HandleUser().getDataFromFirestore();
+      await HandleUser().getLocationsFromFirestore();
     });
     searchFocusNode.value.addListener(() {
       Get.to(SearchBarPage());

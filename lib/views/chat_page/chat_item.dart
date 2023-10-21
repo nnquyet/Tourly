@@ -6,8 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
 
-enum SampleItem { itemOne, itemTwo, itemThree }
-
 class ChatMessage extends StatefulWidget {
   final String text;
   final bool isUser;
@@ -32,7 +30,6 @@ class _ChatMessageState extends State<ChatMessage> {
   var heightScreen;
   late DateTime date;
   late String hour;
-  SampleItem? selectedMenu;
 
   @override
   void initState() {

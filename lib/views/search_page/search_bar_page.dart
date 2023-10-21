@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/controllers/resource.dart';
 import 'package:tourly/common/widgets/app_image.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/views/cards/address_card_detail.dart';
 import 'package:tourly/controllers/home_page_controller/search_page_controller.dart';
 
@@ -102,6 +103,7 @@ class SearchBarPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 return InkWell(
                   onTap: () {
+                    HandleUser().increaseViews(search.filterAddressList[index]);
                     Get.to(() => AddressCardDetail(addressModel: search.filterAddressList[index]));
                   },
                   child: Row(

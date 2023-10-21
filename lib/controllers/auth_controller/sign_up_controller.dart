@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:tourly/controllers/auth_controller/hadle_user.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/models/user_model.dart';
 import 'package:tourly/views/auth_page/login_page.dart';
 

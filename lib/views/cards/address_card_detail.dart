@@ -5,6 +5,9 @@ import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/controllers/resource.dart';
 import 'package:tourly/common/widgets/carousel_slider_custom.dart';
+import 'package:tourly/controllers/auth_controller/data_user.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
+import 'package:tourly/controllers/home_page_controller/address_card_detail_controller.dart';
 import 'package:tourly/models/address_model.dart';
 
 class AddressCardDetail extends StatelessWidget {
@@ -14,103 +17,277 @@ class AddressCardDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FutureBuilder<List<String>>(
-                future: getImageUrlList(Resource().convertToSlug(addressModel.name)),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SizedBox(
-                      height: Get.size.width * 0.6,
-                      width: double.infinity,
-                      child: const CupertinoActivityIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return SizedBox(
-                      height: Get.size.width * 0.6,
-                      width: double.infinity,
-                      child: const CupertinoActivityIndicator(),
-                    );
-                  }
+    final addressDetail = Get.put(AddressCardDetailController());
 
-                  return CarouselSliderCustom(
-                    imageUrls: snapshot.data!,
-                  );
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      addressModel.name,
-                      style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      addressModel.keywords,
-                      style: const TextStyle(fontSize: 14.0, color: AppConst.kTextColor, fontStyle: FontStyle.italic),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
+    return Obx(() {
+      addressDetail.like.value = DataUser.idFavoritesList.contains(addressModel.id);
+      return Scaffold(
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  addressModel.urlList!.length == 1
+                      ? FutureBuilder<List<String>>(
+                          future: getImageUrlList(Resource().convertToSlug(addressModel.name)),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return SizedBox(
+                                height: addressDetail.size.value.width * 0.7,
+                                width: double.infinity,
+                                child: const CupertinoActivityIndicator(),
+                              );
+                            }
+                            if (snapshot.hasError) {
+                              return SizedBox(
+                                height: addressDetail.size.value.width * 0.7,
+                                width: double.infinity,
+                                child: const CupertinoActivityIndicator(),
+                              );
+                            }
+                            addressModel.urlList = snapshot.data!;
+                            print(addressModel.urlList!.length);
+                            return CarouselSliderImageCustom(
+                              imageUrls: snapshot.data!,
+                            );
+                          },
+                        )
+                      : CarouselSliderImageCustom(
+                          imageUrls: addressModel.urlList!,
+                        ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.favorite_border,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 4),
                         Text(
-                          '${addressModel.like}  ·  ',
-                          style: const TextStyle(fontSize: 16),
+                          addressModel.name,
+                          style: const TextStyle(fontSize: AppConst.kFontSize * 1.6, fontWeight: FontWeight.w600),
                         ),
-                        const Icon(
-                          Icons.comment_outlined,
-                          size: 24,
+                        const SizedBox(height: 12.0),
+                        Text(
+                          addressModel.keywords,
+                          style: const TextStyle(fontSize: AppConst.kFontSize, color: AppConst.kSubTextColor),
                         ),
-                        const SizedBox(width: 6),
-                        Container(
-                          decoration: const BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                            color: Colors.black,
-                            width: 1, // Underline thickness
-                          ))),
-                          child: const Text(
-                            '1 Bình luận',
-                            style: TextStyle(
-                              // decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.w600,
-                              decorationThickness: 2,
-                              fontSize: 15,
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                          child: Divider(
+                            thickness: 1,
+                            color: Colors.black.withOpacity(0.15),
                           ),
                         ),
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.favorite_border,
+                                  size: AppConst.kFontSize * 1.2,
+                                  color: AppConst.kSubTextColor,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${addressModel.likes} lượt thích ',
+                                  style: const TextStyle(
+                                    fontSize: AppConst.kFontSize,
+                                    color: AppConst.kSubTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.remove_red_eye_outlined,
+                                  size: AppConst.kFontSize * 1.2,
+                                  color: AppConst.kSubTextColor,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${addressModel.views} lượt xem ',
+                                  style: const TextStyle(
+                                    fontSize: AppConst.kFontSize,
+                                    color: AppConst.kSubTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.comment_outlined,
+                                  size: AppConst.kFontSize * 1.2,
+                                  color: AppConst.kSubTextColor,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${addressModel.likes} bình luận',
+                                  style: const TextStyle(
+                                    decorationThickness: 2,
+                                    fontSize: AppConst.kFontSize,
+                                    color: AppConst.kSubTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Container(
+                            //   decoration: const BoxDecoration(
+                            //       border: Border(
+                            //           bottom: BorderSide(
+                            //     color: Colors.black,
+                            //     width: 1, // Underline thickness
+                            //   ))),
+                            //   child: const Text(
+                            //     '1 Bình luận',
+                            //     style: TextStyle(
+                            //       // decoration: TextDecoration.underline,
+                            //       fontWeight: FontWeight.w600,
+                            //       decorationThickness: 2,
+                            //       fontSize: 15,
+                            //     ),
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                          child: Divider(
+                            thickness: 1,
+                            color: Colors.black.withOpacity(0.15),
+                          ),
+                        ),
+                        const Text(
+                          'Nơi này có những gì cho bạn',
+                          style: TextStyle(
+                            color: AppConst.kTextColor,
+                            fontSize: AppConst.kFontSize * 1.4,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        Text(
+                          addressModel.describe.replaceAll('  ', '\n\n'),
+                          style: const TextStyle(
+                            fontSize: AppConst.kFontSize,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                          child: Divider(
+                            thickness: 1,
+                            color: Colors.black.withOpacity(0.15),
+                          ),
+                        ),
+                        const Text(
+                          'Nơi bạn sẽ đến',
+                          style: TextStyle(
+                            color: AppConst.kTextColor,
+                            fontSize: AppConst.kFontSize * 1.4,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on_outlined,
+                              size: AppConst.kFontSize * 1.2,
+                              color: AppConst.kSubTextColor,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                addressModel.address,
+                                style: const TextStyle(fontSize: AppConst.kFontSize, color: AppConst.kSubTextColor),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                          child: Divider(
+                            thickness: 1,
+                            color: Colors.black.withOpacity(0.15),
+                          ),
+                        ),
+                        Text(
+                          '${addressModel.likes} bình luận',
+                          style: const TextStyle(
+                            decorationThickness: 2,
+                            fontSize: AppConst.kFontSize * 1.4,
+                            color: AppConst.kTextColor,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
                       ],
                     ),
-                    const SizedBox(height: 18),
-                    Divider(
-                      thickness: 1,
-                      color: Colors.black.withOpacity(0.15),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      addressModel.describe.replaceAll('  ', '\n\n'),
-                      style: const TextStyle(fontSize: AppConst.kFontSize),
-                    )
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Get.back();
+              },
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppConst.kTransparentGrayColor,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              )
-            ],
-          ),
+                margin: const EdgeInsets.only(top: 50, left: 15),
+                child: const Icon(
+                  Icons.arrow_back,
+                  size: AppConst.kFontSize,
+                  color: AppConst.kPrimaryLightColor,
+                ),
+              ),
+            ),
+            Positioned(
+                top: 50,
+                right: 15,
+                child: GestureDetector(
+                  onTap: () {
+                    if (addressDetail.like.value) {
+                      HandleUser().unfavoriteLocation(addressModel.id);
+                      addressModel.likes -= 1;
+                    } else {
+                      HandleUser().favoriteLocation(addressModel.id);
+                      addressModel.likes += 1;
+                    }
+                  },
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: AppConst.kTransparentGrayColor,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    // margin: const EdgeInsets.only(left: 10),
+                    // child: const Icon(Icons.favorite_border_outlined, size: AppConst.kSubFontSize),
+                    child: addressDetail.like.value
+                        ? const Icon(
+                            Icons.favorite,
+                            size: AppConst.kFontSize,
+                            color: AppConst.kButtonColor,
+                          )
+                        : const Icon(
+                            Icons.favorite_border_outlined,
+                            size: AppConst.kFontSize,
+                            color: AppConst.kPrimaryLightColor,
+                          ),
+                  ),
+                ))
+          ],
         ),
-      ),
-    );
+      );
+    });
   }
 
   Future<List<String>> getImageUrlList(String name) async {

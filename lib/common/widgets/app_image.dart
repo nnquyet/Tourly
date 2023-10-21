@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tourly/common/app_constants.dart';
 
 class AppImage extends StatelessWidget {
   final String url;
@@ -25,8 +26,11 @@ class AppImage extends StatelessWidget {
         ),
       ),
       placeholder: (context, url) => const CupertinoActivityIndicator(),
-      errorWidget: (context, url, error) => Container(
-        color: Colors.grey,
+      errorWidget: (context, url, error) => AppImage(
+        AppConst.defaultUrlAddress,
+        width,
+        height,
+        circular: width * 0.04,
       ),
       imageUrl: url,
     );

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:tourly/common/controllers/resource.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
 import 'package:tourly/controllers/home_page_controller/search_page_controller.dart';
 import 'package:tourly/models/address_model.dart';
@@ -72,20 +73,20 @@ class HandleUser {
       final Object? data = snapshot.data();
       int countRead = 1;
       (data as Map).forEach((key, value) {
-        if ((data as Map)['${countRead}user'] != null) {
+        if ((data)['${countRead}user'] != null) {
           ChatMessage chatMessage = ChatMessage(
-            text: (data as Map)['${countRead}user'],
+            text: (data)['${countRead}user'],
             isUser: true,
             isNewMessage: false,
             isDisplayTime: false,
-            time: ((data as Map)['${countRead}time']) ?? 'Monday, 2023 April 24, 12:00 AM',
+            time: ((data)['${countRead}time']) ?? 'Monday, 2023 April 24, 12:00 AM',
           );
           ChatMessage chatMessageBot = ChatMessage(
-            text: (data as Map)['${countRead}bot'],
+            text: (data)['${countRead}bot'],
             isUser: false,
             isNewMessage: false,
             isDisplayTime: false,
-            time: ((data as Map)['${countRead}time']) ?? 'Monday, 2023 April 24, 12:00 AM',
+            time: ((data)['${countRead}time']) ?? 'Monday, 2023 April 24, 12:00 AM',
           );
           chatMessageReturn.insert(0, chatMessage);
           chatMessageReturn.insert(0, chatMessageBot);
@@ -97,18 +98,151 @@ class HandleUser {
     return chatMessageReturn;
   }
 
-  Future<void> getDataFromFirestore() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Hà Nội').get();
+  // Future<void> getDataFromFirestore() async {
+  //   // Lấy tham chiếu đến bộ sưu tập "cities"
+  //   final citiesCollection = FirebaseFirestore.instance.collection('cities');
+  //
+  //   // Lấy tất cả các tài liệu trong bộ sưu tập "cities"
+  //   final querySnapshot = await citiesCollection.get();
+  //
+  //   for (QueryDocumentSnapshot cityDocument in querySnapshot.docs) {
+  //     // Lấy tên của thành phố
+  //     final cityName = cityDocument.id;
+  //
+  //     // Lấy tham chiếu đến bộ sưu tập "listcities" trong thành phố hiện tại
+  //     final listCitiesCollection = citiesCollection.doc(cityName).collection('locations');
+  //
+  //     // Lấy tất cả các địa điểm trong bộ sưu tập "city" cho thành phố hiện tại
+  //     final listLocationsSnapshot = await listCitiesCollection.get();
+  //
+  //     for (QueryDocumentSnapshot locationsDocument in listLocationsSnapshot.docs) {
+  //       Map<String, dynamic>? data = locationsDocument.data() as Map<String, dynamic>?;
+  //       if (data != null) {
+  //         AddressModel addressModel = AddressModel.fromJson(data, locationsDocument.id);
+  //         search.addressList.add(addressModel);
+  //       }
+  //     }
+  //   }
+  //   search.filterAddressList.addAll(search.addressList);
+  // }
+
+  Future<void> getLocationsFromFirestore() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('locations').get();
 
     for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
       Map<String, dynamic>? data = documentSnapshot.data() as Map<String, dynamic>?;
-
       if (data != null) {
-        AddressModel addressModel = AddressModel.fromJson(data);
+        AddressModel addressModel = AddressModel.fromJson(data, documentSnapshot.id);
         search.addressList.add(addressModel);
       }
     }
     search.filterAddressList.addAll(search.addressList);
+  }
+
+  Future<void> favoriteLocation(String id) async {
+    DataUser.idFavoritesList.insert(0, id);
+    handleFavorites();
+    getFavoritesFromFirestore();
+
+    DocumentReference datas = FirebaseFirestore.instance.collection('locations').doc(id);
+    final dataSnapshot = await datas.get();
+
+    final data = dataSnapshot.data();
+    int like = dataSnapshot.exists ? (data as Map)['likes'] + 1 : 1;
+    if (dataSnapshot.exists) {
+      await datas.update({
+        'likes': like,
+      });
+    } else {
+      await datas.set({
+        'likes': like,
+      });
+    }
+  }
+
+  Future<void> unfavoriteLocation(String id) async {
+    DataUser.idFavoritesList.remove(id);
+    handleFavorites();
+    getFavoritesFromFirestore();
+
+    DocumentReference datas = FirebaseFirestore.instance.collection('locations').doc(id);
+    final dataSnapshot = await datas.get();
+
+    final data = dataSnapshot.data();
+    int like = dataSnapshot.exists ? (data as Map)['likes'] - 1 : 0;
+    if (dataSnapshot.exists) {
+      await datas.update({
+        'likes': like,
+      });
+    } else {
+      await datas.set({
+        'likes': like,
+      });
+    }
+  }
+
+  Future<void> handleFavorites() async {
+    DocumentReference datas = FirebaseFirestore.instance.collection('favorites').doc(DataUser.userModel.value.id);
+    final dataSnapshot = await datas.get();
+
+    if (dataSnapshot.exists) {
+      await datas.update({
+        'list': DataUser.idFavoritesList,
+      });
+    } else {
+      await datas.set({
+        'list': DataUser.idFavoritesList,
+      });
+    }
+  }
+
+  Future<void> getIdFavoritesFromFirestore() async {
+    DataUser.idFavoritesList.clear();
+    DataUser.favoritesList.clear();
+    DocumentReference datas = FirebaseFirestore.instance.collection('favorites').doc(DataUser.userModel.value.id);
+    final dataSnapshot = await datas.get();
+
+    if (dataSnapshot.exists) {
+      var data = dataSnapshot.data() as Map<String, dynamic>;
+      var favorites = data['list'] as List<dynamic>;
+      DataUser.idFavoritesList.addAll(favorites.map((item) => item.toString()));
+    } else {
+      print('Tài liệu không tồn tại.');
+    }
+    await getFavoritesFromFirestore();
+  }
+
+  Future<void> getFavoritesFromFirestore() async {
+    print('hi');
+    DataUser.favoritesList.clear();
+
+    for (int i = 0; i < DataUser.idFavoritesList.length; i++) {
+      final dataSnapshot =
+          await FirebaseFirestore.instance.collection('locations').doc(DataUser.idFavoritesList[i]).get();
+      Map<String, dynamic>? data = dataSnapshot.data();
+
+      if (data != null) {
+        AddressModel addressModel = AddressModel.fromJson(data, DataUser.idFavoritesList[i]);
+        DataUser.favoritesList.add(addressModel);
+      }
+    }
+  }
+
+  Future<void> increaseViews(AddressModel addressModel) async {
+    DocumentReference datas = FirebaseFirestore.instance.collection('locations').doc(addressModel.id);
+    final dataSnapshot = await datas.get();
+
+    final data = dataSnapshot.data();
+    addressModel.views = dataSnapshot.exists ? (data as Map)['views'] + 1 : 1;
+    if (dataSnapshot.exists) {
+      await datas.update({
+        'views': addressModel.views,
+      });
+    } else {
+      await datas.set({
+        'views': addressModel.views,
+      });
+    }
   }
 
   String handleUserInput(String user_input) {

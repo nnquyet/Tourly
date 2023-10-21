@@ -1,4 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:tourly/common/app_constants.dart';
 
 class Resource {
   String convertToSlug(String input) {
@@ -29,8 +30,8 @@ class Resource {
       final url = await storageRef.getDownloadURL();
       return url;
     } catch (error) {
-      print("Error getting image URL: $error");
-      return ''; // Hoặc bạn có thể trả về một giá trị mặc định khác tùy theo ý muốn
+      print("hi Error getting image URL: $error");
+      return AppConst.defaultUrlAddress; // Hoặc bạn có thể trả về một giá trị mặc định khác tùy theo ý muốn
     }
   }
 }

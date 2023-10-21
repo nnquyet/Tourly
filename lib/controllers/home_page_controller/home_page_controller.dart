@@ -1,9 +1,8 @@
 import 'package:get/get.dart';
-import 'package:tourly/views/like_page.dart';
+import 'package:tourly/views/favorite_page/favorite_page.dart';
 import 'package:tourly/views/search_page/search_page.dart';
-import 'package:tourly/views/support_page.dart';
-
-import '../../views/setting_page/setting.dart';
+import 'package:tourly/views/setting_page/setting.dart';
+import 'package:tourly/views/support_page/support_page.dart';
 
 class HomePageController extends GetxController {
   Rx<int> selectedIndex = 0.obs; //New
@@ -11,7 +10,7 @@ class HomePageController extends GetxController {
   RxList<dynamic> pages = [
     SearchPage(),
     // const ChatPage(),
-    LikePage(),
+    FavoritePage(),
     SupportPage(),
     Setting(),
   ].obs;

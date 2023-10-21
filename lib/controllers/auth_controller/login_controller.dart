@@ -10,7 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:tourly/common/widgets/alert_dialog.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
-import 'package:tourly/controllers/auth_controller/hadle_user.dart';
+import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/models/user_model.dart';
 import 'package:tourly/views/home_page.dart';
 
@@ -65,19 +65,19 @@ class LoginController extends GetxController {
 
     if (user != null) {
       DataUser.userModel.value = UserModel(
-        fullName: 'Họ và tên',
+        fullName: 'My name',
         email: '',
         id: user.uid,
         imagePath: '',
         sex: '',
-        phoneNumber: user.phoneNumber ?? '',
+        phoneNumber: user.phoneNumber!.replaceFirst('+84', '0'),
         birthDay: '',
         address: '',
         loginWith: 'phone',
       );
     }
 
-    final userRef = FirebaseFirestore.instance.collection('users').doc(user?.phoneNumber);
+    final userRef = FirebaseFirestore.instance.collection('users').doc(user?.phoneNumber!.replaceFirst('+84', '0'));
     final documentSnapshot = await userRef.get();
     if (documentSnapshot.exists) {
       print('Tài liệu đã tồn tại!');

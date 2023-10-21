@@ -1,15 +1,12 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/src/painting/text_style.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppConst {
   static const kPrimaryColor = Color(0xFF0196FE);
   static const kButtonColor = Color(0xffff395c);
-  static const kButtonOtherColor = Color(0xffde8989);
   static const kPrimaryLightColor = Color(0xFFffffff);
   static const kBotChatColor = Color(0xFFEAEAEC);
+  static const kTransparentGrayColor = Color.fromRGBO(0, 0, 0, 0.5);
   static const kGradient = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
@@ -21,10 +18,10 @@ class AppConst {
   static const double kRadius = 15;
 
   static const String defaultUrlAddress =
-      "https://previews.123rf.com/images/seita/seita1706/seita170600015/81138383-flat-design-welcome-to-vietnam-icons-and-landmarks-vector.jpg";
+      "https://firebasestorage.googleapis.com/v0/b/tourly-33e16.appspot.com/o/assets%2Fvietnam.jpeg?alt=media&token=bc6d9459-1b84-463f-8895-72d52c1b0d2d&_gl=1*dpxsn0*_ga*NjE3Nzk0ODQ2LjE2OTc3Mjk1MTg.*_ga_CW55HF8NVT*MTY5Nzc5NzIzNi41LjEuMTY5Nzc5ODA2Ni42MC4wLjA.";
 
-  static const double kFontSize = 16;
-  static const double kSubFontSize = 13;
+  static const double kFontSize = 18;
+  static const double kSubFontSize = 16;
 
   static TextStyle style(double size, Color color, {FontWeight fontWeight = FontWeight.w400}) {
     return GoogleFonts.roboto(fontSize: size, color: color, fontWeight: fontWeight, letterSpacing: 0.2);
