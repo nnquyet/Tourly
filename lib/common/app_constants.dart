@@ -6,6 +6,7 @@ class AppConst {
   static const kButtonColor = Color(0xffff395c);
   static const kPrimaryLightColor = Color(0xFFffffff);
   static const kBotChatColor = Color(0xFFEAEAEC);
+  static const kGrayColor = Color(0xFFDCDCDC);
   static const kTransparentGrayColor = Color.fromRGBO(0, 0, 0, 0.5);
   static const kGradient = LinearGradient(
     begin: Alignment.centerLeft,

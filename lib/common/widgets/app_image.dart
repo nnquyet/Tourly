@@ -30,7 +30,7 @@ class AppImage extends StatelessWidget {
         AppConst.defaultUrlAddress,
         width,
         height,
-        circular: width * 0.04,
+        circular: circular != 0 ? circular : width * 0.04,
       ),
       imageUrl: url,
     );

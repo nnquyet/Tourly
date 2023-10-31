@@ -5,9 +5,9 @@ import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/widgets/app_image.dart';
 
 class CarouselSliderImageCustom extends StatefulWidget {
-  const CarouselSliderImageCustom({super.key, required this.imageUrls});
+  const CarouselSliderImageCustom({super.key, required this.urlList});
 
-  final List<String> imageUrls;
+  final List<String> urlList;
 
   @override
   State<CarouselSliderImageCustom> createState() => _CarouselSliderImageCustomState();
@@ -16,13 +16,13 @@ class CarouselSliderImageCustom extends StatefulWidget {
 class _CarouselSliderImageCustomState extends State<CarouselSliderImageCustom> {
   CarouselController controller = CarouselController();
   int initialPage = 0;
-  late List<String> imagesUrlList;
+  late List<String> imageUrlList;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    imagesUrlList = widget.imageUrls;
+    imageUrlList = widget.urlList;
   }
 
   @override
@@ -32,7 +32,7 @@ class _CarouselSliderImageCustomState extends State<CarouselSliderImageCustom> {
       children: [
         CarouselSlider(
             carouselController: controller,
-            items: imagesUrlList.map((imageUrl) {
+            items: imageUrlList.map((imageUrl) {
               return AppImage(imageUrl, double.infinity, Get.size.width * 0.7);
             }).toList(),
             options: CarouselOptions(
@@ -48,7 +48,7 @@ class _CarouselSliderImageCustomState extends State<CarouselSliderImageCustom> {
             )),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: imagesUrlList.asMap().entries.map((imageUrl) {
+          children: imageUrlList.asMap().entries.map((imageUrl) {
             return InkWell(
               onTap: () {
                 controller.jumpToPage(imageUrl.key);

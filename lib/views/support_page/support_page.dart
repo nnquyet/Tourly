@@ -12,23 +12,18 @@ class SupportPage extends StatefulWidget {
 class _HelpState extends State<SupportPage> with SingleTickerProviderStateMixin {
   int _selectedIndexBottomAppbar = 0;
   final List<String> questions = [
-    'GLEAN là gì?',
-    'GLEAN có miễn phí không?',
-    'GLEAN có những tính năng gì?',
-    'Kiểm tra mắt qua hình ảnh như thế nào?',
-    'Model BHBot có gì đặc biệt?',
+    'Tourly là gì?',
+    'Tourly có miễn phí không?',
+    'Tourly có những tính năng gì?',
   ];
 
   final List<String> answers = [
-    'GLEAN là một chương trình kết hợp với trí tuệ nhân tạo (AI) để tương tác với con người, giúp trả lời những câu hỏi một cách nhanh chóng.',
-    'Có, GLEAN của chúng tôi hoàn toàn miễn phí',
-    'GLEAN có thể:'
-        '\n- Hỏi đáp và giải quyết vấn đề'
-        '\n- Dịch và biên tập'
-        '\n- Xử lý nhiều ngôn ngữ khác nhau'
-        '\n- Kiểm tra mắt qua hình ảnh',
-    'Bạn có thể gửi hình ảnh cho GLEAN bằng cách chụp ảnh hoặc chọn ảnh từ bộ sưu tập. Hãy nhớ cấp quyền trước khi chụp ảnh và chọn ảnh nhé!',
-    'Model BHBot có thể trả lời các câu hỏi liên quan về mắt',
+    'Tourly là một ứng dụng tìm kiếm địa điểm du lịch và tích hợp chatbot thông minh',
+    'Có, Tourly của chúng tôi hoàn toàn miễn phí',
+    'Tourly có thể:'
+        '\n- Tìm kiếm và lọc các địa điểm du lịch dựa trên địa điểm, sở thích...'
+        '\n- Hiển thị thông tin chi tiết về các địa điểm du lịch, bao gồm đánh giá, địa chỉ, hoạt động và các dịch vụ liên quan'
+        '\n- Trò chuyện và trả lời câu hỏi từ người dùng với khả năng tương tác tự nhiên và linh hoạt'
   ];
 
   late List<bool> _showAnswer;

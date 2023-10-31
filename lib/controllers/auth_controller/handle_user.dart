@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:tourly/common/controllers/resource.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
 import 'package:tourly/controllers/home_page_controller/search_page_controller.dart';
 import 'package:tourly/models/address_model.dart';
+import 'package:tourly/models/comment_model.dart';
 import 'package:tourly/views/chat_page/chat_item.dart';
 
 import '../../models/user_model.dart';
@@ -17,7 +16,7 @@ class HandleUser {
   List<int> list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Chỉ lưu 10 cặp tin nhắn
 
   Future<void> addInfoUser(UserModel userModel) async {
-    final userRef;
+    final DocumentReference<Map<String, dynamic>> userRef;
     if (userModel.loginWith == 'phone') {
       userRef = FirebaseFirestore.instance.collection('users').doc(userModel.phoneNumber);
     } else {
@@ -39,7 +38,7 @@ class HandleUser {
   }
 
   // Lưu lịch sử cuộc hội thoại và các đoạn chat trong đó
-  Future<void> addChat(String user_chat, String bot_chat, String time) async {
+  Future<void> addChat(String userChat, String botChat, String time) async {
     DocumentReference datas = FirebaseFirestore.instance.collection('chats').doc(DataUser.userModel.value.id);
 
     final dataSnapshot = await datas.get();
@@ -48,15 +47,15 @@ class HandleUser {
 
     if (dataSnapshot.exists) {
       await datas.update({
-        '${countWrite}user': user_chat,
-        '${countWrite}bot': bot_chat,
+        '${countWrite}user': userChat,
+        '${countWrite}bot': botChat,
         '${countWrite}time': time,
         'count': countWrite,
       });
     } else {
       await datas.set({
-        '${countWrite}user': user_chat,
-        '${countWrite}bot': bot_chat,
+        '${countWrite}user': userChat,
+        '${countWrite}bot': botChat,
         '${countWrite}time': time,
         'count': countWrite,
       });
@@ -96,6 +95,61 @@ class HandleUser {
     }
 
     return chatMessageReturn;
+  }
+
+  Future<void> addComment(String comment, String id, String time) async {
+    DocumentReference datas = FirebaseFirestore.instance.collection('comments').doc(id);
+
+    final dataSnapshot = await datas.get();
+    final data = dataSnapshot.data();
+    countWrite = dataSnapshot.exists ? (data as Map)['count'] + 1 : 0;
+
+    if (dataSnapshot.exists) {
+      await datas.update({
+        // '${countWrite}id': id,
+        '${countWrite}fullName': DataUser.userModel.value.fullName,
+        '${countWrite}imagePath': DataUser.userModel.value.imagePath,
+        '${countWrite}time': time,
+        '${countWrite}comment': comment,
+        'count': countWrite,
+      });
+    } else {
+      await datas.set({
+        // '${countWrite}id': id,
+        '${countWrite}fullName': DataUser.userModel.value.fullName,
+        '${countWrite}imagePath': DataUser.userModel.value.imagePath,
+        '${countWrite}comment': comment,
+        '${countWrite}time': time,
+        'count': countWrite,
+      });
+    }
+  }
+
+  Future<List<CommentModel>> readComment(String id) async {
+    DocumentReference datas = FirebaseFirestore.instance.collection('comments').doc(id);
+
+    List<CommentModel> commentListReturn = [];
+
+    final snapshot = await datas.get();
+    if (snapshot.exists) {
+      final Object? data = snapshot.data();
+      int countRead = 0;
+      (data as Map).forEach((key, value) {
+        if ((data)['${countRead}comment'] != null) {
+          CommentModel comment = CommentModel(
+            // id: id,
+            fullName: (data)['${countRead}fullName'],
+            imagePath: (data)['${countRead}imagePath'],
+            comment: (data)['${countRead}comment'],
+            time: (data)['${countRead}time'],
+          );
+
+          commentListReturn.insert(0, comment);
+        }
+        ++countRead;
+      });
+    }
+    return commentListReturn;
   }
 
   // Future<void> getDataFromFirestore() async {
@@ -213,7 +267,6 @@ class HandleUser {
   }
 
   Future<void> getFavoritesFromFirestore() async {
-    print('hi');
     DataUser.favoritesList.clear();
 
     for (int i = 0; i < DataUser.idFavoritesList.length; i++) {
@@ -245,19 +298,19 @@ class HandleUser {
     }
   }
 
-  String handleUserInput(String user_input) {
-    if (user_input.toLowerCase().contains("xin chào")) {
+  String handleUserInput(String userInput) {
+    if (userInput.toLowerCase().contains("xin chào")) {
       return ("Xin chào! Tôi là chatbot, bạn cần tôi giúp gì?");
-    } else if (user_input.toLowerCase().contains("tạm biệt")) {
+    } else if (userInput.toLowerCase().contains("tạm biệt")) {
       return ("Tạm biệt! Hãy quay lại nếu bạn cần sự trợ giúp của tôi.");
-    } else if (user_input.toLowerCase().contains("cảm ơn")) {
+    } else if (userInput.toLowerCase().contains("cảm ơn")) {
       return ("Không có gì! Hãy nói với tôi nếu bạn cần sự trợ giúp.");
-    } else if (user_input.toLowerCase().contains("hôm nay là ngày mấy")) {
+    } else if (userInput.toLowerCase().contains("hôm nay là ngày mấy")) {
       DateTime now = DateTime.now();
       String formattedDate = DateFormat('dd/MM/yyyy').format(now);
       return ("Hôm nay là ngày $formattedDate.");
-    } else if (user_input.toLowerCase().contains("tổng")) {
-      List<String> words = user_input.split(' ');
+    } else if (userInput.toLowerCase().contains("tổng")) {
+      List<String> words = userInput.split(' ');
       if (words.length <= 3) {
         return ("Vui lòng nhập đúng cú pháp. Ví dụ: 'Tính tổng 2 và 3'.");
       } else {
@@ -266,12 +319,12 @@ class HandleUser {
           int num2 = int.parse(words[4]);
           int sum = num1 + num2;
           return ("Tổng của $num1 và $num2 là $sum.");
-        } catch (FormatException) {
+        } on FormatException {
           return ("Vui lòng nhập đúng cú pháp. Ví dụ: 'Tính tổng 2 và 3'.");
         }
       }
-    } else if (user_input.toLowerCase().contains("tính hiệu")) {
-      List<String> words = user_input.split(' ');
+    } else if (userInput.toLowerCase().contains("tính hiệu")) {
+      List<String> words = userInput.split(' ');
       if (words.length <= 3) {
         return ("Vui lòng nhập đúng cú pháp. Ví dụ: 'Tính hiệu 5 trừ đi 3'.");
       } else {
@@ -280,12 +333,12 @@ class HandleUser {
           int num2 = int.parse(words[4]);
           int diff = num1 - num2;
           return ("Hiệu của $num1 trừ đi $num2 là $diff.");
-        } catch (FormatException) {
+        } on FormatException {
           return ("Vui lòng nhập đúng cú pháp. Ví dụ: 'Tính hiệu 5 trừ đi 3'.");
         }
       }
-    } else if (user_input.toLowerCase().contains("tính tích")) {
-      List<String> words = user_input.split(' ');
+    } else if (userInput.toLowerCase().contains("tính tích")) {
+      List<String> words = userInput.split(' ');
       if (words.length <= 3) {
         return ("Vui lòng nhập đúng cú pháp. Ví dụ: 'Tính tích 2 và 3'.");
       } else {
@@ -294,24 +347,24 @@ class HandleUser {
           int num2 = int.parse(words[4]);
           int product = num1 * num2;
           return ("Tích của $num1 và $num2 là $product.");
-        } catch (FormatException) {
+        } on FormatException {
           return ("Vui lòng nhập đúng cú pháp. Ví dụ: 'Tính tích 5 nhân 3'.");
         }
       }
-    } else if (user_input.toLowerCase().contains("đổi mật khẩu")) {
+    } else if (userInput.toLowerCase().contains("đổi mật khẩu")) {
       return ("Để đổi mật khẩu, vui lòng truy cập trang đổi mật khẩu trên ứng dụng của chúng tôi.");
-    } else if (user_input.toLowerCase().contains("cập nhật thông tin")) {
+    } else if (userInput.toLowerCase().contains("cập nhật thông tin")) {
       return ("Để cập nhật thông tin, vui lòng truy cập trang cập nhật thông tin trên ứng dụng của chúng tôi.");
-    } else if (user_input.toLowerCase().contains("tìm kiếm")) {
-      List<String> words = user_input.split(' ');
+    } else if (userInput.toLowerCase().contains("tìm kiếm")) {
+      List<String> words = userInput.split(' ');
       if (words.length <= 2) {
         return ("Vui lòng nhập từ khóa tìm kiếm. Ví dụ: 'Tìm kiếm sản phẩm A'.");
       } else {
-        String keyword = user_input.substring(18).trim();
+        String keyword = userInput.substring(18).trim();
         return ("Đang tìm kiếm với từ khóa: $keyword");
       }
-    } else if (user_input.toLowerCase().contains("đặt hàng")) {
-      List<String> words = user_input.split(' ');
+    } else if (userInput.toLowerCase().contains("đặt hàng")) {
+      List<String> words = userInput.split(' ');
       if (words.length <= 2) {
         return ("Vui lòng nhập thông tin đặt hàng. Ví dụ: 'Đặt hàng sản phẩm A số lượng 2'.");
       } else {
@@ -319,26 +372,26 @@ class HandleUser {
           String product = words[2];
           int quantity = int.parse(words[4]);
           return ("Đã đặt hàng $quantity $product.");
-        } catch (FormatException) {
+        } on FormatException {
           return ("Vui lòng nhập đúng cú pháp. Ví dụ: 'Đặt hàng sản phẩm A số lượng 2'.");
         }
       }
-    } else if (user_input.toLowerCase().contains("hướng dẫn sử dụng")) {
+    } else if (userInput.toLowerCase().contains("hướng dẫn sử dụng")) {
       return ("Vui lòng truy cập trang hướng dẫn sử dụng trên ứng dụng của chúng tôi để biết thêm chi tiết.");
-    } else if (user_input.toLowerCase().contains("đánh giá sản phẩm")) {
-      List<String> words = user_input.split(' ');
+    } else if (userInput.toLowerCase().contains("đánh giá sản phẩm")) {
+      List<String> words = userInput.split(' ');
       if (words.length <= 2) {
         return ("Vui lòng nhập tên sản phẩm để đánh giá. Ví dụ: 'Đánh giá sản phẩm A'.");
       } else {
-        String product = user_input.substring(17).trim();
+        String product = userInput.substring(17).trim();
         return ("Vui lòng truy cập trang đánh giá sản phẩm $product trên ứng dụng của chúng tôi.");
       }
-    } else if (user_input.toLowerCase().contains("thông tin sản phẩm")) {
-      List<String> words = user_input.split(' ');
+    } else if (userInput.toLowerCase().contains("thông tin sản phẩm")) {
+      List<String> words = userInput.split(' ');
       if (words.length <= 2) {
         return ("Vui lòng nhập tên sản phẩm để xem thông tin chi tiết. Ví dụ: 'Thông tin sản phẩm A'.");
       } else {
-        String product = user_input.substring(19).trim();
+        String product = userInput.substring(19).trim();
         return ("Đang tìm kiếm thông tin sản phẩm $product.");
       }
     } else {

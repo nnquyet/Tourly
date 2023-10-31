@@ -587,7 +587,7 @@ class ChatController extends GetxController {
     // );
     //
     // for (int i = messageLength - 1; i >= 0; --i) {
-    //   final sender = (i % 2 == 0) ? 'GLEAN' : 'USER';
+    //   final sender = (i % 2 == 0) ? 'Tourly' : 'USER';
     //
     //   widgets.add(
     //     pw.Container(

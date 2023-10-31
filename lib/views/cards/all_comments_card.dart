@@ -13,8 +13,8 @@ import 'package:tourly/controllers/home_page_controller/address_card_detail_cont
 import 'package:tourly/models/address_model.dart';
 import 'package:tourly/models/comment_model.dart';
 
-class AddressCardDetail extends StatelessWidget {
-  const AddressCardDetail({super.key, required this.addressModel});
+class AllCommentsCard extends StatelessWidget {
+  const AllCommentsCard({super.key, required this.addressModel});
 
   final AddressModel addressModel;
 
