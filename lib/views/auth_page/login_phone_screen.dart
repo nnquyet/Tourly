@@ -126,7 +126,7 @@ class _LoginPhoneScreenState extends State<LoginPhoneScreen> {
                                     Icon(Icons.check_box, color: Colors.white),
                                     SizedBox(width: 8.0),
                                     Text(
-                                      'Số điện thoại không chính xác',
+                                      'Số điện thoại không chính xác. Vui lòng thử lại!',
                                       style: TextStyle(color: Colors.white),
                                     ),
                                   ],
@@ -138,7 +138,6 @@ class _LoginPhoneScreenState extends State<LoginPhoneScreen> {
                           },
                           codeSent: (String verificationId, int? resendToken) {
                             login.verify.value = verificationId;
-                            Get.back();
                             Get.to(() => const VerifyLoginPhone());
                           },
                           codeAutoRetrievalTimeout: (String verificationId) {

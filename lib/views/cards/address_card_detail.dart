@@ -7,11 +7,13 @@ import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/controllers/resource.dart';
 import 'package:tourly/common/widgets/carousel_slider_comment_custom.dart';
 import 'package:tourly/common/widgets/carousel_slider_image_custom.dart';
+import 'package:tourly/common/widgets/dismissible_custom.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
 import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/controllers/home_page_controller/address_card_detail_controller.dart';
 import 'package:tourly/models/address_model.dart';
 import 'package:tourly/models/comment_model.dart';
+import 'package:tourly/views/cards/all_comments_card.dart';
 
 class AddressCardDetail extends StatelessWidget {
   const AddressCardDetail({super.key, required this.addressModel});
@@ -175,10 +177,73 @@ class AddressCardDetail extends StatelessWidget {
                         ),
                         Text(
                           addressModel.describe.replaceAll('  ', '\n\n'),
+                          maxLines: 10,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: AppConst.kFontSize,
                           ),
                         ),
+                        if (addressModel.describe.length > 160)
+                          Container(
+                            decoration: const BoxDecoration(
+                                border: Border(
+                                    bottom: BorderSide(
+                              color: Colors.black,
+                              width: 1, // Underline thickness
+                            ))),
+                            child: GestureDetector(
+                              onTap: () {
+                                showGeneralDialog(
+                                  barrierLabel: "Label",
+                                  barrierDismissible: false,
+                                  barrierColor: Colors.black.withOpacity(0.5),
+                                  transitionDuration: const Duration(milliseconds: 400),
+                                  context: context,
+                                  pageBuilder: (context, anim1, anim2) {
+                                    return DismissibleCustom(Padding(
+                                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Nơi này có những gì cho bạn',
+                                            style: TextStyle(
+                                              color: AppConst.kTextColor,
+                                              fontSize: AppConst.kFontSize * 1.4,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 12,
+                                          ),
+                                          Text(
+                                            addressModel.describe.replaceAll('  ', '\n\n'),
+                                            style: const TextStyle(
+                                              fontSize: AppConst.kFontSize,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ));
+                                  },
+                                  transitionBuilder: (context, anim1, anim2, child) {
+                                    return SlideTransition(
+                                      position:
+                                          Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim1),
+                                      child: child,
+                                    );
+                                  },
+                                );
+                              },
+                              child: const Text(
+                                'Xem thêm',
+                                style: TextStyle(
+                                  fontSize: AppConst.kFontSize,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 18.0),
                           child: Divider(
@@ -229,7 +294,9 @@ class AddressCardDetail extends StatelessWidget {
                         ),
                         CarouselSliderCommentCustom(commentList: addressDetail.commentList),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(() => AllCommentsCard(commentList: addressDetail.commentList));
+                          },
                           child: Container(
                             margin: const EdgeInsets.fromLTRB(0, 16, 0, 16),
                             padding: const EdgeInsets.all(14),

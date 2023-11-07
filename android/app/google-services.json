@@ -7,18 +7,26 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:599409999507:android:70375582fa9b7587075766",
+        "mobilesdk_app_id": "1:599409999507:android:0e87773aa3ff8cb7075766",
         "android_client_info": {
-          "package_name": "com.example.tourly"
+          "package_name": "com.quyetnn.tourly"
         }
       },
       "oauth_client": [
         {
-          "client_id": "599409999507-2vl4pe0tpor68k5ld11rsd25koavh361.apps.googleusercontent.com",
+          "client_id": "599409999507-gi04rrhf8ajaeaiohabb7i2p8lnbf42r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.tourly",
+            "package_name": "com.quyetnn.tourly",
             "certificate_hash": "96613f4d76a7cc76f47c68953f488f9dd06ed80b"
+          }
+        },
+        {
+          "client_id": "599409999507-oc1dkf4e0icm07ns1jc7ukvk7focanr5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quyetnn.tourly",
+            "certificate_hash": "f36427ee8504a2bab21a417e3970395da2745eb1"
           }
         },
         {

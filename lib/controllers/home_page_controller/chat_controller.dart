@@ -2,11 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui' as ui;
-import 'package:path/path.dart' as path;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import 'package:async/async.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -25,7 +21,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:text_to_speech/text_to_speech.dart';
 import 'package:tourly/common/api_services.dart';
-import 'package:tourly/common/widgets/alert_dialog.dart';
 import 'package:tourly/common/widgets/showToast.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
 import 'package:tourly/controllers/auth_controller/handle_user.dart';
@@ -74,9 +69,6 @@ class ChatController extends GetxController {
   TextEditingController originController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
   TextEditingController shareEmailController = TextEditingController();
-  RxBool isChooseMany = false.obs;
-  RxBool isChooseAll = false.obs;
-  RxList<bool> selectedMessage = <bool>[].obs;
 
   // Video
   late VideoPlayerController videoPlayerController;
@@ -167,24 +159,13 @@ class ChatController extends GetxController {
     super.onClose();
     videoPlayerController.dispose();
     keyboardSubscription.cancel();
-    focusNode.dispose();
   }
 
   Future<void> waitData() async {
+    Get.dialog(const Center(child: CircularProgressIndicator()));
     messages.value = await HandleUser().readChat();
-
-    // prefs.getStringList('chat_channel') == null || prefs.getStringList('chat_channel')!.isEmpty
-    //     ? chatChannel = ['ChatGPT'].toSet()
-    //     : chatChannel = prefs.getStringList('chat_channel')!.toSet();
-    // print('getStringList: ${chatChannel.toString()}');
-    // mapKeywordsFromDB = await _handle.readKeywords();
-
-    // messages.clear();
-    // messagesList.clear();
-    // selectedMessage.clear();
-    // messages.addAll(messages2);
     addTime();
-    selectedMessage.value = List.generate(messagesList.length, (index) => false);
+    Get.back();
   }
 
   Future<void> initializeVideoPlayer() async {
@@ -286,14 +267,12 @@ class ChatController extends GetxController {
     textEditingController.clear();
     resultUrls.clear();
     resultDomains.clear();
-    // listKeywords.clear();
     images.fillRange(0, 3, '');
     String result = '';
     translatedTextImage.value = '';
     checkGenerateQuestion.value = false;
     showImagesSuggest.value = false;
     String replyText = '';
-    // String keywordForImage = '';
     String weatherCurrent = '';
     String weather5Days = '';
 
@@ -302,7 +281,6 @@ class ChatController extends GetxController {
       DateTime date = DateFormat('EEEE, yyyy MMMM d, h:mm a').parse(time.value);
       String day = DateFormat('EEEE, MMMM d').format(date);
       messagesList.insert(0, day);
-      selectedMessage.insert(0, false);
       previousDate = time;
     }
 
@@ -351,7 +329,6 @@ class ChatController extends GetxController {
     }
 
     messagesList.insert(0, chatMessage);
-    selectedMessage.insert(0, false);
     messages.insert(0, chatMessage);
     questionScreenBot.value = text;
 
@@ -374,12 +351,6 @@ class ChatController extends GetxController {
       destinationController.clear();
     }
 
-    // replyText = msg.trim().replaceAll('\n', '').isEmpty ? HandleUser().handleUserInput(text) : msg.trim();
-    //
-    // if (replyText == 'Xin lỗi, tôi không hiểu câu hỏi của bạn. Hãy thử lại với câu hỏi khác.') {
-    //   replyText = await ApiChatBotServices().claudeAI(text);
-    // }
-
     if (replyText == '') {
       replyText = 'Api key của bạn không hợp lệ, vui lòng kiểm tra lại trong Setting';
     }
@@ -391,12 +362,12 @@ class ChatController extends GetxController {
       isDisplayTime: false,
       time: time.value,
     );
-
-    await HandleUser().addChat(chatMessage.text, reply.text, time.value);
+    print('rep: ${reply.text}');
+    print('length: ${reply.text.length}');
 
     playAudio(reply);
 
-    print('rep: ${reply.text}');
+    HandleUser().addChat(chatMessage.text, reply.text, time.value);
 
     //Get translate from API
     translatedTextImage.value = await ApiChatBotServices().translate(chatMessage.text, reply.text);
@@ -462,10 +433,9 @@ class ChatController extends GetxController {
     try {
       if (setting.generateVoice.value.toString() == 'false') {
         messagesList.insert(0, reply);
-        selectedMessage.insert(0, false);
         messages.insert(0, reply);
         showQuestionsSuggest.value = true;
-        Future.delayed(Duration(milliseconds: reply.text.length * 30), () {
+        Future.delayed(Duration(milliseconds: reply.text.length * 20), () {
           if (messagesList.isNotEmpty && messagesList[0] is ChatMessage) {
             messagesList.first.isNewMessage = false;
             checkGenerateReply.value = true;
@@ -473,7 +443,6 @@ class ChatController extends GetxController {
         });
       } else if (setting.selectedVoice.value == 'Google') {
         messagesList.insert(0, reply);
-        selectedMessage.insert(0, false);
         messages.insert(0, reply);
         showQuestionsSuggest.value = true;
         switchVideo();
@@ -489,7 +458,6 @@ class ChatController extends GetxController {
         String audioUrl = await ApiChatBotServices().getAudioUrl(reply.text);
         await audioPlayer.play(UrlSource(audioUrl));
         messagesList.insert(0, reply);
-        selectedMessage.insert(0, false);
         messages.insert(0, reply);
         showQuestionsSuggest.value = true;
         switchVideo();
@@ -570,138 +538,6 @@ class ChatController extends GetxController {
       // print('');
     }
     return null;
-  }
-
-  Future<void> createPDF(BuildContext context) async {
-    // final pdf = pw.Document();
-    // final font = await rootBundle.load("assets/fonts/Roboto-Regular.ttf");
-    // final ttf = pw.Font.ttf(font);
-    // bool success = false;
-    //
-    // List<pw.Widget> widgets = [];
-    // final messageLength = messages.length;
-    // final conversationTextStyle = pw.TextStyle(
-    //   font: ttf,
-    //   fontWeight: pw.FontWeight.bold,
-    //   color: const PdfColor(1, 1, 1),
-    // );
-    //
-    // for (int i = messageLength - 1; i >= 0; --i) {
-    //   final sender = (i % 2 == 0) ? 'Tourly' : 'USER';
-    //
-    //   widgets.add(
-    //     pw.Container(
-    //       alignment: pw.Alignment.center,
-    //       padding: const pw.EdgeInsets.symmetric(vertical: 10),
-    //       color: (i % 2 == 0) ? const PdfColor(0.2, 0.21, 0.25) : const PdfColor(0.27, 0.27, 0.33),
-    //       child: pw.Row(
-    //         crossAxisAlignment: pw.CrossAxisAlignment.start,
-    //         children: [
-    //           pw.SizedBox(width: 50, child: pw.Text('$sender:', style: conversationTextStyle)),
-    //           pw.SizedBox(width: 10),
-    //           pw.Flexible(child: pw.Text(messages[i].text, style: conversationTextStyle)),
-    //         ],
-    //       ),
-    //     ),
-    //   );
-    // }
-    //
-    // try {
-    //   pdf.addPage(
-    //     pw.MultiPage(
-    //       pageFormat: PdfPageFormat.a4,
-    //       build: (context) => widgets, //here goes the widgets list
-    //     ),
-    //   );
-    //
-    //   final directory = await getApplicationSupportDirectory();
-    //   final path = directory.path;
-    //   final file = File('$path/$titleConversation.pdf');
-    //
-    //   await file.writeAsBytes(await pdf.save());
-    //   OpenFile.open('$path/$titleConversation.pdf');
-    //   success = true;
-    // } catch (e) {
-    //   // print('');
-    // }
-    //
-    // if (!success) {
-    //   const ShowToast(text: 'Không thể xuất file do có câu hỏi hoặc câu trả lời quá dài!').show();
-    // }
-  }
-
-  void shareMessagesWithEmail(BuildContext context, List<String> listMessagesShare) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialogCustom(
-          notification: "Chia sẻ tới",
-          children2: TextFormField(
-            controller: shareEmailController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.all(10),
-              hintText: 'Email',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(width: 0.3),
-              ),
-            ),
-          ),
-          onPress: () async {
-            // Navigator.pop(context);
-            //
-            // String date = DateFormat('dd-MM-yyyy  hh:mm:ss a').format(DateTime.now());
-            // setState(() {
-            //   isLoading.value = true;
-            // });
-            //
-            // late UserCustom userCustomShare;
-            // final userRef = FirebaseFirestore.instance.collection('users').doc(shareEmailComtroller.text);
-            // final documentSnapshot = await userRef.get();
-            // if (documentSnapshot.exists) {
-            //   print('Tài liệu đã tồn tại!');
-            //   final data = documentSnapshot.data();
-            //   final dataConvert = data as Map;
-            //   userCustomShare = UserCustom.fromJson(dataConvert);
-            //   final lengthListMessageShare = listMessagesShare.length;
-            //   // print('listmessage: ${listMessagesShare.length}');
-            //   for (int i = 0; i < lengthListMessageShare; i = i + 2) {
-            //     // print("listmessage: ${listMessagesShare[i]} ${listMessagesShare[i + 1]}");
-            //     await Handle().addChat(userCustomShare.id, '${date}?Shared by ${MyData.userCustom!.name}',
-            //         "Shared by ${MyData.userCustom!.name}", listMessagesShare[i], listMessagesShare[i + 1], time);
-            //   }
-            // } else {
-            //   print('Tài liệu không tồn tại.');
-            // }
-            // setState(() {
-            //   isChooseMany.value = false;
-            //   isLoading.value = false;
-            // });
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> deleteMessage(BuildContext context, List<ChatMessage> listMessageAfterDelete) async {
-    // DocumentReference documentReference =
-    //     FirebaseFirestore.instance.collection(MyData.userCustom?.id).doc('${widget.section}?$titleConversation');
-    // documentReference.delete();
-    //
-    // setState(() {
-    //   isLoading.value = true;
-    // });
-    // final lengthListMessageShare = listMessageAfterDelete.length;
-    // for (int i = 0; i < lengthListMessageShare; i = i + 2) {
-    //   print('listmessageafter: ${listMessageAfterDelete[i].text}\n${listMessageAfterDelete[i + 1].text}');
-    //   await Handle().addChat(widget.userCustom.id, '${widget.section}?$titleConversation', titleConversation,
-    //       listMessageAfterDelete[i].text, listMessageAfterDelete[i + 1].text, listMessageAfterDelete[i].time);
-    // }
-    // setState(() {
-    //   isLoading.value = false;
-    //   isChooseMany.value = false;
-    //   checkSetState = true;
-    // });
   }
 
   Future<void> uploadImage(String pickedImage) async {
@@ -805,21 +641,4 @@ class ChatController extends GetxController {
       print(value);
     });
   }
-  //
-  // Future<void> download(String url) async {
-  //   final response = await http.get(Uri.parse(url));
-  //
-  //   // Get the image name
-  //   final imageName = path.basename(url);
-  //   // Get the document directory path
-  //   final appDir = await getApplicationDocumentsDirectory();
-  //
-  //   // This is the saved image path
-  //   // You can use it to display the saved image later
-  //   final localPath = path.join(appDir.path, imageName);
-  //
-  //   // Downloading
-  //   final imageFile = File(localPath);
-  //   await imageFile.writeAsBytes(response.bodyBytes);
-  // }
 }

@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.0+6
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -43,6 +43,7 @@ dependencies:
   linked_scroll_controller: ^0.2.0
   fluttertoast: ^8.2.2
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.5
   firebase_core: ^2.5.0
   firebase_storage: ^11.0.15
   cloud_firestore: ^4.8.3
@@ -77,6 +78,18 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  image_path: 'assets/images/logo.jpeg'
+  color: "#FFFFFF"
+  android: true
+  ios: true
+
+flutter_native_splash:
+  color: "#FFFFFF"  # Mã màu nền của splash screen (ví dụ: mã màu trắng)
+  image: assets/images/logo.jpeg  # Đường dẫn tới tệp hình ảnh splash (đảm bảo tệp hình ảnh tồn tại trong thư mục assets của dự án)
+  android: true  # Có tạo splash screen cho Android không
+  ios: true  # Có tạo splash screen cho iOS không
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

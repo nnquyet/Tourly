@@ -10,10 +10,9 @@ import 'package:tourly/views/chat_page/chat_item.dart';
 import '../../models/user_model.dart';
 
 class HandleUser {
-  final SearchPageController search = Get.find();
+  final search = Get.put(SearchPageController());
   int countWrite = 1;
   int countRead = 1;
-  List<int> list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Chỉ lưu 10 cặp tin nhắn
 
   Future<void> addInfoUser(UserModel userModel) async {
     final DocumentReference<Map<String, dynamic>> userRef;

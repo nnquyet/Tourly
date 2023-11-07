@@ -3,24 +3,29 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tourly/common/app_constants.dart';
+import 'package:tourly/common/widgets/alert_dialog.dart';
 import 'package:tourly/common/widgets/showToast.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
 import 'package:tourly/controllers/auth_controller/handle_user.dart';
+import 'package:tourly/controllers/auth_controller/login_controller.dart';
 import 'package:tourly/models/user_model.dart';
 
 class SettingController extends GetxController {
   final box = GetStorage();
   final size = Get.size.obs;
   RxBool isLoading = false.obs;
+  final login = Get.put(LoginController());
 
   // Setting User
   late Rx<TextEditingController> fullNameController = TextEditingController().obs;
@@ -243,5 +248,72 @@ class SettingController extends GetxController {
             ),
           );
         });
+  }
+
+  Future<void> signOut() async {
+    try {
+      box.erase();
+      box.write('accessed_application', true);
+      await login.signOut(context: Get.context!);
+      await Get.deleteAll(force: true);
+      Phoenix.rebirth(Get.context!);
+      Get.reset();
+    } catch (e) {
+      print("Lỗi khi xoá tài khoản: $e");
+    }
+  }
+
+  Future<void> deleteAccount(BuildContext context) async {
+    try {
+      // Lấy thông tin người dùng hiện tại
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Xoá tài khoản người dùng
+        Get.dialog(const Center(child: CircularProgressIndicator()));
+        await user.delete();
+
+        // Xoá User Firestore
+        if (DataUser.userModel.value.loginWith == 'phone') {
+          DocumentReference documentReference =
+              FirebaseFirestore.instance.collection('users').doc(DataUser.userModel.value.phoneNumber);
+          documentReference.delete();
+        } else {
+          DocumentReference documentReference =
+              FirebaseFirestore.instance.collection('users').doc(DataUser.userModel.value.email);
+          documentReference.delete();
+        }
+
+        // Xoá Chat Firestore
+        DocumentReference documentChat =
+            FirebaseFirestore.instance.collection('chats').doc(DataUser.userModel.value.id);
+        documentChat.delete();
+
+        // Xoá Favorites Firestore
+        DocumentReference documentFavorites =
+            FirebaseFirestore.instance.collection('favorites').doc(DataUser.userModel.value.id);
+        documentFavorites.delete();
+
+        Get.back();
+        await signOut();
+        const ShowToast(text: 'Đã xoá tài khoản thành công').show();
+      } else {
+        Get.back();
+        Get.dialog(AlertDialogCustom(
+          notification: 'Vui lòng đăng nhập lại',
+          onPress: () async {
+            await signOut();
+          },
+        ));
+      }
+    } catch (e) {
+      print("Lỗi khi xoá tài khoản: $e");
+      Get.dialog(AlertDialogCustom(
+        notification: 'Vui lòng đăng nhập lại',
+        onPress: () async {
+          await signOut();
+        },
+      ));
+    }
   }
 }

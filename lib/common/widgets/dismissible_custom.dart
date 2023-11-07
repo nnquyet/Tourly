@@ -50,7 +50,7 @@ class DismissibleCustom extends StatelessWidget {
                 thickness: 1,
                 color: Colors.black.withOpacity(0.15),
               ),
-              SingleChildScrollView(child: child),
+              Expanded(child: SingleChildScrollView(child: child)),
             ],
           ),
         ),

@@ -14,6 +14,7 @@ class CommentCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
       padding: const EdgeInsets.all(4),
+      constraints: BoxConstraints(minHeight: 220),
       decoration:
           BoxDecoration(borderRadius: BorderRadius.circular(16.0), border: Border.all(color: AppConst.kGrayColor)),
       child: Column(
@@ -70,7 +71,7 @@ class CommentCard extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                               child: Text(
-                                '${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}${commentModel.comment}',
+                                commentModel.comment,
                                 style: const TextStyle(fontSize: AppConst.kFontSize),
                               ),
                             ),

@@ -25,18 +25,18 @@ class Greeting extends StatefulWidget {
 
 class _GreetingState extends State<Greeting> {
   final box = GetStorage();
-  bool isVisible = true;
+  // bool isVisible = true;
   final PageController controller = PageController();
   int numberOfPages = 3;
   int currentPage = 0;
 
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        isVisible = false;
-      });
-    });
+    // Future.delayed(const Duration(seconds: 2), () {
+    //   setState(() {
+    //     isVisible = false;
+    //   });
+    // });
     box.write('accessed_application', true);
     super.initState();
   }
@@ -46,80 +46,82 @@ class _GreetingState extends State<Greeting> {
     return Scaffold(
       backgroundColor: AppConst.kPrimaryLightColor,
       appBar: null,
-      body: Visibility(
-        visible: isVisible,
-        replacement: Stack(
-          children: [
-            PageView.builder(
-              controller: controller,
-              itemCount: numberOfPages,
-              itemBuilder: (BuildContext context, int index) {
-                return EachPage(hello[index], images[index]);
-              },
-              onPageChanged: (index) {
-                setState(() {
-                  currentPage = index;
-                });
-              },
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IntrinsicHeight(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Flexible(
-                          child: Center(
-                            child: (currentPage != numberOfPages - 1)
-                                ? TextButton(
-                                    onPressed: () {
-                                      controller.jumpToPage(numberOfPages - 1);
-                                    },
-                                    child: const Text("Bỏ qua",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                        ),
-                        Flexible(child: Center(child: Indicator(controller: controller, pageCount: numberOfPages))),
-                        Flexible(
-                          child: Center(
-                            child: (currentPage != numberOfPages - 1)
-                                ? TextButton(
-                                    onPressed: () {
-                                      controller.jumpToPage(currentPage + 1);
-                                    },
-                                    child: const Text("Tiếp tục",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  )
-                                : TextButton(
-                                    onPressed: () {
-                                      Get.off(() => Welcome());
-                                    },
-                                    child: const Text("Hoàn thành",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 80),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-        child: Center(
-          child: Image.asset(
-            'assets/images/vietnam.jpeg',
-            fit: BoxFit.fitWidth,
+      body:
+          // Visibility(
+          //   visible: isVisible,
+          //   replacement:
+          Stack(
+        children: [
+          PageView.builder(
+            controller: controller,
+            itemCount: numberOfPages,
+            itemBuilder: (BuildContext context, int index) {
+              return EachPage(hello[index], images[index]);
+            },
+            onPageChanged: (index) {
+              setState(() {
+                currentPage = index;
+              });
+            },
           ),
-        ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IntrinsicHeight(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Flexible(
+                        child: Center(
+                          child: (currentPage != numberOfPages - 1)
+                              ? TextButton(
+                                  onPressed: () {
+                                    controller.jumpToPage(numberOfPages - 1);
+                                  },
+                                  child:
+                                      const Text("Bỏ qua", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ),
+                      Flexible(child: Center(child: Indicator(controller: controller, pageCount: numberOfPages))),
+                      Flexible(
+                        child: Center(
+                          child: (currentPage != numberOfPages - 1)
+                              ? TextButton(
+                                  onPressed: () {
+                                    controller.jumpToPage(currentPage + 1);
+                                  },
+                                  child: const Text("Tiếp tục",
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                )
+                              : TextButton(
+                                  onPressed: () {
+                                    Get.off(() => Welcome());
+                                  },
+                                  child: const Text("Hoàn thành",
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 80),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
       ),
+      // child: Center(
+      //   child: Image.asset(
+      //     'assets/images/vietnam.jpeg',
+      //     fit: BoxFit.fitWidth,
+      //   ),
+      // ),
+      // ),
     );
   }
 }

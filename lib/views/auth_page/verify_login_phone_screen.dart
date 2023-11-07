@@ -138,7 +138,7 @@ class _VerifyLoginPhoneState extends State<VerifyLoginPhone> {
                     },
                     child: const Text(
                       "Edit Phone Number ?",
-                      style: TextStyle(color: AppConst.kPrimaryColor),
+                      style: TextStyle(color: AppConst.kButtonColor),
                     )),
               )
             ],

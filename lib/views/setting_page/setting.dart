@@ -1,12 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/widgets/app_image.dart';
-import 'package:tourly/views/welcome_page/welcome_page.dart';
+import 'package:tourly/common/widgets/showToast.dart';
 
-import '../../common/all_bindings.dart';
 import '../../common/widgets/alert_dialog.dart';
 import '../../controllers/auth_controller/data_user.dart';
 import '../../controllers/auth_controller/login_controller.dart';
@@ -17,7 +14,6 @@ import 'settting_user.dart';
 class Setting extends StatelessWidget {
   Setting({super.key});
 
-  final login = Get.put(LoginController());
   final SettingController setting = Get.find();
   bool darkMode = false;
 
@@ -71,46 +67,18 @@ class Setting extends StatelessWidget {
                   },
                   child: buildSettingOption(context, 'Cài đặt Bot', icon: Icons.android_outlined),
                 ),
-
-                // buildSettingOption(
-                //   context,
-                //   'Chế độ tối',
-                //   icon: Icons.nights_stay_outlined,
-                //   isSwitch: true,
-                //   switchSetting: Switch(
-                //     value: darkMode,
-                //     onChanged: (value) {
-                //       // setState(() {
-                //       //   darkMode = value;
-                //       // });
-                //     },
-                //   ),
-                // ),
-                InkWell(
-                  onTap: () {},
-                  child: buildSettingOption(context, 'Đổi mật khẩu', icon: Icons.lock_open_outlined),
-                ),
                 const Padding(padding: EdgeInsets.symmetric(vertical: 10.0), child: Divider(thickness: 1)),
                 Container(
                   constraints: const BoxConstraints(minHeight: 50),
                   child: InkWell(
                     onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialogCustom(
-                            notification: 'Bạn có chắc muốn đăng xuất?',
-                            onPress: () async {
-                              setting.box.erase();
-                              setting.box.write('accessed_application', true);
-                              await login.signOut(context: context);
-                              await Get.deleteAll(force: true);
-                              Phoenix.rebirth(context);
-                              Get.reset();
-                            },
-                          );
+                      Get.dialog(AlertDialogCustom(
+                        notification: 'Bạn có chắc muốn đăng xuất?',
+                        onPress: () async {
+                          await setting.signOut();
+                          const ShowToast(text: 'Đăng xuất thành công').show();
                         },
-                      );
+                      ));
                     },
                     child: const Row(
                       children: [

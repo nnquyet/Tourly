@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter/services.dart';
+import 'package:tourly/common/widgets/alert_dialog.dart';
 import 'package:tourly/common/widgets/app_image.dart';
 
 import '../../../common/widgets/rounded_button.dart';
@@ -36,6 +37,42 @@ class SettingUser extends StatelessWidget {
                 style: TextStyle(color: AppConst.kTextColor, fontSize: 18, fontWeight: FontWeight.w600),
               ),
               elevation: 0,
+              actions: [
+                PopupMenuButton<String>(
+                  offset: const Offset(0, 30),
+                  onSelected: (value) {
+                    // Xử lý khi một mục trong menu được chọn
+                    if (value == 'option1') {
+                      Get.dialog(AlertDialogCustom(
+                        notification: 'Bạn có chắc muốn xoá tài khoản?',
+                        onPress: () async {
+                          await setting.deleteAccount(context);
+                        },
+                      ));
+                    }
+                    // else if (value == 'option2') {
+                    // }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'option1',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline),
+                            SizedBox(width: 8),
+                            Text('Xoá tài khoản'),
+                          ],
+                        ),
+                      ),
+                      // const PopupMenuItem<String>(
+                      //   value: 'option2',
+                      //   child: Text('Tùy chọn 2'),
+                      // ),
+                    ];
+                  },
+                )
+              ],
             ),
             body: Padding(
               padding: EdgeInsets.symmetric(vertical: size.height * 0.01, horizontal: size.width * 0.05),
