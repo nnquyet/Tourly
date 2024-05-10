@@ -1,8 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
-import 'package:tourly/common/widgets/app_image.dart';
 import 'package:tourly/models/comment_model.dart';
 import 'package:tourly/views/cards/comment_card.dart';
 
@@ -51,10 +49,10 @@ class _CarouselSliderCommentCustomState extends State<CarouselSliderCommentCusto
             )),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: commentList.asMap().entries.take(5).map((imageUrl) {
+          children: commentList.asMap().entries.take(5).map((comment) {
             return InkWell(
               onTap: () {
-                controller.jumpToPage(imageUrl.key);
+                controller.jumpToPage(comment.key);
               },
               child: Container(
                 margin: const EdgeInsets.all(8),
@@ -62,7 +60,7 @@ class _CarouselSliderCommentCustomState extends State<CarouselSliderCommentCusto
                 width: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: initialPage == imageUrl.key ? AppConst.kTextColor : Colors.grey.withOpacity(0.4),
+                  color: initialPage == comment.key ? AppConst.kTextColor : Colors.grey.withOpacity(0.4),
                 ),
               ),
             );

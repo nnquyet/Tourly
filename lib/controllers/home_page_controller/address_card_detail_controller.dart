@@ -25,11 +25,8 @@ class AddressCardDetailController extends GetxController {
   void onReady() {
     // TODO: implement onReady
     super.onReady();
-    print('length: ${idAddress.value}');
-
     Future.delayed(Duration.zero, () async {
       commentList.value = await HandleUser().readComment(idAddress.value);
-      print('length: ${commentList.length}');
     });
   }
 

@@ -27,10 +27,4 @@ class AppConst {
   static TextStyle style(double size, Color color, {FontWeight fontWeight = FontWeight.w400}) {
     return GoogleFonts.roboto(fontSize: size, color: color, fontWeight: fontWeight, letterSpacing: 0.2);
   }
-
-  static const Map<String, String> typeHouse = {
-    "APARTMENT": "Chung cư",
-    "HOUSE_LAND": "Nhà nguyên căn",
-    "BEDSIT": "Phòng trọ",
-  };
 }

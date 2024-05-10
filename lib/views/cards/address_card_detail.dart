@@ -14,6 +14,7 @@ import 'package:tourly/controllers/home_page_controller/address_card_detail_cont
 import 'package:tourly/models/address_model.dart';
 import 'package:tourly/models/comment_model.dart';
 import 'package:tourly/views/cards/all_comments_card.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AddressCardDetail extends StatelessWidget {
   const AddressCardDetail({super.key, required this.addressModel});
@@ -34,7 +35,7 @@ class AddressCardDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  addressModel.urlList!.length == 1
+                  addressModel.urlList == null || addressModel.urlList!.length == 1
                       ? FutureBuilder<List<String>>(
                           future: getImageUrlList(Resource().convertToSlug(addressModel.name)),
                           builder: (context, snapshot) {
@@ -77,10 +78,7 @@ class AddressCardDetail extends StatelessWidget {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 18.0),
-                          child: Divider(
-                            thickness: 1,
-                            color: Colors.black.withOpacity(0.15),
-                          ),
+                          child: Divider(thickness: 1, color: Colors.black.withOpacity(0.15)),
                         ),
                         Column(
                           children: [
@@ -184,57 +182,58 @@ class AddressCardDetail extends StatelessWidget {
                           ),
                         ),
                         if (addressModel.describe.length > 160)
-                          Container(
-                            decoration: const BoxDecoration(
-                                border: Border(
-                                    bottom: BorderSide(
-                              color: Colors.black,
-                              width: 1, // Underline thickness
-                            ))),
-                            child: GestureDetector(
-                              onTap: () {
-                                showGeneralDialog(
-                                  barrierLabel: "Label",
-                                  barrierDismissible: false,
-                                  barrierColor: Colors.black.withOpacity(0.5),
-                                  transitionDuration: const Duration(milliseconds: 400),
-                                  context: context,
-                                  pageBuilder: (context, anim1, anim2) {
-                                    return DismissibleCustom(Padding(
-                                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                          GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+                                builder: (BuildContext context) {
+                                  return SizedBox(
+                                    height: Get.height * 0.8,
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
-                                            'Nơi này có những gì cho bạn',
-                                            style: TextStyle(
-                                              color: AppConst.kTextColor,
-                                              fontSize: AppConst.kFontSize * 1.4,
-                                              fontWeight: FontWeight.w600,
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 16.0, bottom: 8),
+                                            child: const Text(
+                                              'Nơi này có những gì cho bạn',
+                                              style: TextStyle(
+                                                color: AppConst.kTextColor,
+                                                fontSize: AppConst.kFontSize * 1.2,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
-                                          const SizedBox(
-                                            height: 12,
-                                          ),
-                                          Text(
-                                            addressModel.describe.replaceAll('  ', '\n\n'),
-                                            style: const TextStyle(
-                                              fontSize: AppConst.kFontSize,
+                                          Divider(thickness: 1, color: Colors.black.withOpacity(0.15)),
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              child: Text(
+                                                addressModel.describe.replaceAll('  ', '\n\n'),
+                                                style: const TextStyle(
+                                                  fontSize: AppConst.kFontSize,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ));
-                                  },
-                                  transitionBuilder: (context, anim1, anim2, child) {
-                                    return SlideTransition(
-                                      position:
-                                          Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim1),
-                                      child: child,
-                                    );
-                                  },
-                                );
-                              },
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                  border: Border(
+                                      bottom: BorderSide(
+                                color: Colors.black,
+                                width: 1, // Underline thickness
+                              ))),
                               child: const Text(
                                 'Xem thêm',
                                 style: TextStyle(
@@ -266,13 +265,21 @@ class AddressCardDetail extends StatelessWidget {
                             const Icon(
                               Icons.location_on_outlined,
                               size: AppConst.kFontSize * 1.2,
-                              color: AppConst.kSubTextColor,
+                              color: AppConst.kTextColor,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                addressModel.address,
-                                style: const TextStyle(fontSize: AppConst.kFontSize, color: AppConst.kSubTextColor),
+                              child: InkWell(
+                                onTap: () async {
+                                  if (!await launchUrl(
+                                      Uri.parse('https://maps.google.com/?q=${addressModel.address}'))) {
+                                    throw Exception('Could not launch url}');
+                                  }
+                                },
+                                child: Text(
+                                  addressModel.address,
+                                  style: const TextStyle(fontSize: AppConst.kFontSize, color: AppConst.kPrimaryColor),
+                                ),
                               ),
                             ),
                           ],
@@ -292,30 +299,66 @@ class AddressCardDetail extends StatelessWidget {
                               color: AppConst.kTextColor,
                               fontWeight: FontWeight.w600),
                         ),
-                        CarouselSliderCommentCustom(commentList: addressDetail.commentList),
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => AllCommentsCard(commentList: addressDetail.commentList));
-                          },
-                          child: Container(
+                        if (addressDetail.commentList.isEmpty)
+                          Container(
                             margin: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-                            padding: const EdgeInsets.all(14),
+                            height: 230,
+                            width: addressDetail.size.value.width,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: AppConst.kTextColor)),
-                            child: Center(
-                              child: Text(
-                                'Hiển thị tất cả ${addressDetail.commentList.length} bình luận',
-                                style: const TextStyle(
-                                  decorationThickness: 2,
-                                  fontSize: AppConst.kFontSize,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppConst.kTextColor,
+                                borderRadius: BorderRadius.circular(16.0),
+                                border: Border.all(color: AppConst.kGrayColor)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.comment_outlined,
+                                  size: 68,
+                                  color: AppConst.kGrayColor,
+                                ),
+                                const Text(
+                                  'Chưa có bình luận nào',
+                                  style: TextStyle(
+                                    fontSize: AppConst.kFontSize,
+                                    color: AppConst.kSubTextColor,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                const Text(
+                                  'Hãy là người đầu tiên bình luận',
+                                  style: TextStyle(
+                                    fontSize: AppConst.kSubFontSize,
+                                    color: AppConst.kSubTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (addressDetail.commentList.isNotEmpty)
+                          CarouselSliderCommentCustom(commentList: addressDetail.commentList),
+                        if (addressDetail.commentList.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => AllCommentsCard(commentList: addressDetail.commentList));
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppConst.kTextColor)),
+                              child: Center(
+                                child: Text(
+                                  'Hiển thị tất cả ${addressDetail.commentList.length} bình luận',
+                                  style: const TextStyle(
+                                    decorationThickness: 2,
+                                    fontSize: AppConst.kFontSize,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppConst.kTextColor,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
@@ -430,8 +473,6 @@ class AddressCardDetail extends StatelessWidget {
                       color: AppConst.kTransparentGrayColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    // margin: const EdgeInsets.only(left: 10),
-                    // child: const Icon(Icons.favorite_border_outlined, size: AppConst.kSubFontSize),
                     child: addressDetail.like.value
                         ? const Icon(
                             Icons.favorite,

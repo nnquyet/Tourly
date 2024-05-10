@@ -26,26 +26,22 @@ class FavoritePage extends StatelessWidget {
                   style: TextStyle(color: AppConst.kTextColor, fontSize: 18, fontWeight: FontWeight.w600)),
               centerTitle: true,
             ),
-            body: Stack(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: favorite.size.value.width * 0.06),
-                  child: ListView.builder(
-                    itemCount: DataUser.favoritesList.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 25.0),
-                        child: InkWell(
-                            onTap: () {
-                              HandleUser().increaseViews(DataUser.favoritesList[index]);
-                              Get.to(() => AddressCardDetail(addressModel: DataUser.favoritesList[index]));
-                            },
-                            child: AddressCard(DataUser.favoritesList[index])),
-                      );
-                    },
-                  ),
-                ),
-              ],
+            body: Container(
+              padding: EdgeInsets.symmetric(horizontal: favorite.size.value.width * 0.06),
+              child: ListView.builder(
+                itemCount: DataUser.favoritesList.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 26),
+                    child: InkWell(
+                        onTap: () {
+                          HandleUser().increaseViews(DataUser.favoritesList[index]);
+                          Get.to(() => AddressCardDetail(addressModel: DataUser.favoritesList[index]));
+                        },
+                        child: AddressCard(DataUser.favoritesList[index])),
+                  );
+                },
+              ),
             ),
           ),
         );

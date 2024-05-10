@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/common/widgets/app_image.dart';
-import 'package:tourly/common/widgets/dismissible_custom.dart';
 import 'package:tourly/models/comment_model.dart';
 
 class CommentCard extends StatelessWidget {
@@ -38,60 +38,58 @@ class CommentCard extends StatelessWidget {
             ),
           ),
           if (commentModel.comment.length > 160)
-            InkWell(
-              onTap: () {},
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                decoration: const BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(
-                  color: Colors.black,
-                  width: 1, // Underline thickness
-                ))),
-                child: GestureDetector(
-                  onTap: () {
-                    showGeneralDialog(
-                      barrierLabel: "Label",
-                      barrierDismissible: false,
-                      barrierColor: Colors.black.withOpacity(0.5),
-                      transitionDuration: const Duration(milliseconds: 400),
-                      context: context,
-                      pageBuilder: (context, anim1, anim2) {
-                        return DismissibleCustom(Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              leading: AppImage(commentModel.imagePath, 50, 50, circular: 25),
-                              title: Text(
-                                commentModel.fullName,
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: AppConst.kFontSize),
-                              ),
-                              subtitle: Text(commentModel.time),
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+                  builder: (BuildContext context) {
+                    return SizedBox(
+                      height: Get.height * 0.6,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            leading: AppImage(commentModel.imagePath, 50, 50, circular: 25),
+                            title: Text(
+                              commentModel.fullName,
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: AppConst.kFontSize),
                             ),
-                            Padding(
+                            subtitle: Text(commentModel.time),
+                          ),
+                          Expanded(
+                            child: Padding(
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                               child: Text(
                                 commentModel.comment,
                                 style: const TextStyle(fontSize: AppConst.kFontSize),
                               ),
                             ),
-                          ],
-                        ));
-                      },
-                      transitionBuilder: (context, anim1, anim2, child) {
-                        return SlideTransition(
-                          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim1),
-                          child: child,
-                        );
-                      },
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                      ),
                     );
                   },
-                  child: const Text(
-                    'Xem thêm',
-                    style: TextStyle(
-                      fontSize: AppConst.kFontSize,
-                      fontWeight: FontWeight.w600,
+                );
+              },
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.black,
+                      width: 1, // Underline thickness
                     ),
+                  ),
+                ),
+                child: const Text(
+                  'Xem thêm',
+                  style: TextStyle(
+                    fontSize: AppConst.kFontSize,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

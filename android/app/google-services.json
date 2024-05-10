@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "599409999507-ujp33d7453qh8u4bc4b23f8ecmpkigil.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quyetnn.tourly",
+            "certificate_hash": "7f0d9c6694d9c11494cf8bdaf6f4eab23a23084f"
+          }
+        },
+        {
           "client_id": "599409999507-f4mobvihd3m5t202a0tqbe8amunl8j7b.apps.googleusercontent.com",
           "client_type": 3
         }
