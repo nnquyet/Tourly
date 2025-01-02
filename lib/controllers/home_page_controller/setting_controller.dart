@@ -23,7 +23,6 @@ import 'package:tourly/models/user_model.dart';
 
 class SettingController extends GetxController {
   final box = GetStorage();
-  final size = Get.size.obs;
   RxBool isLoading = false.obs;
   final login = Get.put(LoginController());
 
@@ -193,7 +192,7 @@ class SettingController extends GetxController {
         context: context,
         builder: (BuildContext builder) {
           return Container(
-            height: size.value.height * 0.4,
+            height: Get.size.height * 0.4,
             child: Column(
               children: [
                 Padding(

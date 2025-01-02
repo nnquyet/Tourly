@@ -9,7 +9,6 @@ import 'package:tourly/views/search_page/search_bar_page.dart';
 
 class SearchPageController extends GetxController {
   //main controller
-  final size = Get.size.obs;
   late Rx<TextEditingController> searchBarController;
   RxList<AddressModel> addressList = <AddressModel>[].obs;
   RxList<AddressModel> filterAddressList = <AddressModel>[].obs;
@@ -32,8 +31,10 @@ class SearchPageController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     searchBarController = TextEditingController().obs;
-    xPosition.value = size.value.width * 0.79;
-    yPosition.value = size.value.height * 0.60;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      xPosition.value = Get.size.width * 0.79;
+      yPosition.value = Get.size.height * 0.60;
+    });
 
     Future.delayed(const Duration(milliseconds: 0), () async {
       // await getDataFromApi();

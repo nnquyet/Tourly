@@ -4,8 +4,6 @@ import 'package:get/get.dart';
 import 'package:tourly/controllers/auth_controller/handle_user.dart';
 
 class FavoritePageController extends GetxController {
-  final size = Get.size.obs;
-
   @override
   void onInit() {
     // TODO: implement onInit

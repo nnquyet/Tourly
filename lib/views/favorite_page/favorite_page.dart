@@ -4,8 +4,8 @@ import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/controllers/auth_controller/data_user.dart';
 import 'package:tourly/controllers/auth_controller/handle_user.dart';
 import 'package:tourly/controllers/home_page_controller/favorite_page_controller.dart';
-import 'package:tourly/views/cards/address_card_detail.dart';
 import 'package:tourly/views/cards/address_card.dart';
+import 'package:tourly/views/cards/address_card_detail.dart';
 
 class FavoritePage extends StatelessWidget {
   FavoritePage({super.key});
@@ -27,7 +27,7 @@ class FavoritePage extends StatelessWidget {
               centerTitle: true,
             ),
             body: Container(
-              padding: EdgeInsets.symmetric(horizontal: favorite.size.value.width * 0.06),
+              padding: EdgeInsets.symmetric(horizontal: Get.size.width * 0.06),
               child: ListView.builder(
                 itemCount: DataUser.favoritesList.length,
                 itemBuilder: (context, index) {

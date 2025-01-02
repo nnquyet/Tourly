@@ -37,7 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_svg: ^2.0.5
   get_storage: ^2.1.1
-  get: ^4.6.5
+  get: ^4.6.6
   http: ^1.1.0
   intl: ^0.18.1
   linked_scroll_controller: ^0.2.0
@@ -50,8 +50,8 @@ dependencies:
   firebase_auth: ^4.7.2
   google_sign_in: ^5.4.4
   path_provider: ^2.0.13
-  carousel_slider: ^4.2.1
-  cached_network_image: ^3.2.3
+  carousel_slider: ^5.0.0
+  cached_network_image: ^3.3.1
   image_picker: ^1.0.4
   permission_handler: ^10.4.3
   html: ^0.15.4
@@ -73,7 +73,7 @@ dependencies:
   pinput: ^3.0.1
   image_gallery_saver: ^2.0.3
   flutter_phoenix: ^1.1.1
-
+  win32: ^5.5.4
 
 dev_dependencies:
   flutter_test:

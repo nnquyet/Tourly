@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourly/common/app_constants.dart';
 import 'package:tourly/controllers/auth_controller/handle_user.dart';
-import 'package:tourly/views/cards/address_card_detail.dart';
 import 'package:tourly/controllers/home_page_controller/search_page_controller.dart';
 import 'package:tourly/views/cards/address_card.dart';
-import 'package:tourly/views/chat_page/chat_screen.dart';
+import 'package:tourly/views/cards/address_card_detail.dart';
 import 'package:tourly/views/search_page/search_bar_page.dart';
 
 class SearchPage extends StatelessWidget {
@@ -94,7 +93,7 @@ class SearchPage extends StatelessWidget {
                             },
                             child: search.buildButtonOptions("Địa điểm", search.selectedAddress),
                           ),
-                          SizedBox(width: search.size.value.width * 0.02),
+                          SizedBox(width: Get.size.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -117,7 +116,7 @@ class SearchPage extends StatelessWidget {
                             },
                             child: search.buildButtonOptions("Giải trí", search.selectedEntertain),
                           ),
-                          SizedBox(width: search.size.value.width * 0.02),
+                          SizedBox(width: Get.size.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -136,7 +135,7 @@ class SearchPage extends StatelessWidget {
                             },
                             child: search.buildButtonOptions("Văn hoá", search.selectedCulture),
                           ),
-                          SizedBox(width: search.size.value.width * 0.02),
+                          SizedBox(width: Get.size.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -157,7 +156,7 @@ class SearchPage extends StatelessWidget {
                             },
                             child: search.buildButtonOptions("Thiên nhiên", search.selectedNature),
                           ),
-                          SizedBox(width: search.size.value.width * 0.02),
+                          SizedBox(width: Get.size.width * 0.02),
                           PopupMenuButton<String>(
                             itemBuilder: (BuildContext context) {
                               return [
@@ -176,7 +175,7 @@ class SearchPage extends StatelessWidget {
                             },
                             child: search.buildButtonOptions("Hoạt động", search.selectedActivities),
                           ),
-                          SizedBox(width: search.size.value.width * 0.02),
+                          SizedBox(width: Get.size.width * 0.02),
                         ],
                       ),
                     ),
@@ -187,7 +186,7 @@ class SearchPage extends StatelessWidget {
             body: Stack(
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: search.size.value.width * 0.06),
+                  padding: EdgeInsets.symmetric(horizontal: Get.size.width * 0.06),
                   child: ListView.builder(
                     itemCount: search.filterAddressList.length,
                     itemBuilder: (context, index) {
@@ -207,9 +206,7 @@ class SearchPage extends StatelessWidget {
                   left: search.xPosition.value,
                   top: search.yPosition.value,
                   child: GestureDetector(
-                    onTap: () {
-                      Get.to(() => Chat());
-                    },
+                    onTap: () {},
                     onPanUpdate: (details) {
                       search.xPosition.value += details.delta.dx;
                       search.yPosition.value += details.delta.dy;

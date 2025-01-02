@@ -14,7 +14,7 @@ class CarouselSliderCommentCustom extends StatefulWidget {
 }
 
 class _CarouselSliderCommentCustomState extends State<CarouselSliderCommentCustom> {
-  CarouselController controller = CarouselController();
+  CarouselSliderController controller = CarouselSliderController();
   int initialPage = 0;
   late List<CommentModel> commentList;
 

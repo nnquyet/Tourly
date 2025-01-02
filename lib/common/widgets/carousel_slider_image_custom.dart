@@ -14,7 +14,7 @@ class CarouselSliderImageCustom extends StatefulWidget {
 }
 
 class _CarouselSliderImageCustomState extends State<CarouselSliderImageCustom> {
-  CarouselController controller = CarouselController();
+  CarouselSliderController controller = CarouselSliderController();
   int initialPage = 0;
   late List<String> imageUrlList;
 
